@@ -1,21 +1,41 @@
 """
 utils/theme.py
 ==============
-Shared visual theme for the NZ Labour Demand Forecaster dashboard.
+Massey-inspired formal executive theme — NZ Labour Demand Forecaster.
 
-Provides:
-  - Central colour palette (NZ ocean / blue-green executive style)
-  - CSS injection for Streamlit (call inject_css() once per page)
-  - Section-header helper        → section_header(title, subtitle="")
-  - Metric card helper           → metric_card(label, value, delta=None, delta_label="")
-  - Info card helper             → info_card(title, body, icon="")
-  - Plotly layout factory        → plotly_layout(title, x_label="", y_label="")
-  - Plotly colour sequence       → CHART_COLORS  (list)
+Colour system
+-------------
+  #003B5C  primary navy    — titles, sidebar, table headers, metric accents
+  #00263A  deep navy       — hero bg, sidebar gradient base
+  #1E293B  near-black navy — body text, chart titles
+  #64748B  slate           — secondary text, captions, muted labels
+  #D4A64A  gold            — accent only: section rules, borders, eyebrows
+  #E2E8F0  cool gray       — card borders, gridlines, dividers
+  #F8FAFC  off-white       — page surface
+  #FFFFFF  white           — card backgrounds
 
-Usage
------
-    from utils.theme import inject_css, section_header, metric_card, info_card, plotly_layout, CHART_COLORS
-    inject_css()   # call once at the top of the page, after st.set_page_config
+Typography
+----------
+  Playfair Display — page titles, metric values (formal serif)
+  Inter            — all body, UI labels, section headers, captions
+
+Exports
+-------
+  PALETTE              dict of all named colour tokens
+  CHART_COLORS         list[str] — ordered Plotly sequence
+  FORECAST_COLOR       str
+  FORECAST_BAND_COLOR  str
+  HISTORICAL_COLOR     str
+
+  inject_css()         → call once per page after st.set_page_config
+  section_header()     → branded rule divider
+  info_card()          → white card with gold top-border
+  takeaway_card()      → navy callout block
+  page_hero()          → full-width hero banner for inner pages
+  plotly_layout()      → Plotly layout dict factory
+  line_trace()         → styled go.Scatter
+  bar_trace()          → styled go.Bar
+  forecast_band_trace()→ shaded confidence band
 """
 
 import streamlit as st
@@ -26,51 +46,55 @@ import plotly.graph_objects as go
 # ---------------------------------------------------------------------------
 
 PALETTE = {
-    # Primary blues
-    "deep_blue":      "#0B2D4E",   # darkest — sidebar bg, heavy headers
-    "ocean_blue":     "#1A5276",   # primary brand colour
-    "mid_blue":       "#1F6F9C",   # secondary interactive elements
-    "sky_blue":       "#2E86C1",   # accent / chart line
+    # ── Massey navy scale ────────────────────────────────────────────────
+    "navy_deep":   "#00263A",   # deepest — hero bg, sidebar root
+    "navy":        "#003B5C",   # primary — titles, sidebar, table heads
+    "navy_body":   "#1E293B",   # near-black — body text, chart titles
+    "navy_mid":    "#1E293B",   # alias used by pages (kept for compat)
 
-    # Teals & greens
-    "teal":           "#148A7D",   # positive indicators, CTAs
-    "soft_teal":      "#1ABC9C",   # secondary teal accent
-    "sage_green":     "#27AE60",   # success / upward deltas
-    "light_green":    "#A9DFBF",   # very light positive bg tint
+    # ── Gold accent ──────────────────────────────────────────────────────
+    "gold":        "#D4A64A",   # single accent — section rules, borders, eyebrows
+    "gold_light":  "rgba(212,166,74,0.12)",  # forecast band fill
 
-    # Neutrals
-    "white":          "#FFFFFF",
-    "card_bg":        "#F8FAFB",   # card background
-    "surface":        "#EEF3F7",   # page section tint
-    "border":         "#D5E3EC",   # subtle card borders
-    "text_primary":   "#0D1F2D",   # near-black body text
-    "text_secondary": "#4A6580",   # muted label / caption text
-    "text_light":     "#7F9BB1",   # placeholder / disabled
+    # ── Surface & card ───────────────────────────────────────────────────
+    "surface":     "#F8FAFC",   # page background
+    "card_bg":     "#FFFFFF",   # card / panel white
 
-    # Status
-    "warning":        "#E67E22",
-    "danger":         "#C0392B",
-    "info_bg":        "#EBF5FB",
-    "info_border":    "#2E86C1",
+    # ── Borders & dividers ───────────────────────────────────────────────
+    "border":      "#E2E8F0",   # card borders, dividers
+    "border_light":"#EEF2F7",   # very subtle inner dividers
+
+    # ── Text scale ───────────────────────────────────────────────────────
+    "text_primary":   "#1E293B",   # headings, metric values
+    "text_body":      "#1E293B",   # body copy — high contrast on white
+    "text_secondary": "#FFFFFF",   # captions, labels, muted
+    "text_light":     "#94A3B8",   # placeholders, disabled
+
+    # ── Semantic ─────────────────────────────────────────────────────────
+    "white":       "#FFFFFF",
+    "positive":    "#166534",   # upward delta
+    "negative":    "#991B1B",   # downward delta
+    "info_bg":     "#EFF6FF",
+    "warning":     "#92400E",
 }
 
 # ---------------------------------------------------------------------------
-# 2.  CHART COLOUR SEQUENCE  (for Plotly)
+# 2.  CHART COLOUR SEQUENCE
 # ---------------------------------------------------------------------------
 
 CHART_COLORS = [
-    PALETTE["ocean_blue"],
-    PALETTE["teal"],
-    PALETTE["sky_blue"],
-    PALETTE["soft_teal"],
-    PALETTE["sage_green"],
-    PALETTE["mid_blue"],
-    PALETTE["warning"],
+    "#003B5C",   # primary navy
+    "#D4A64A",   # gold
+    "#2563AB",   # mid blue
+    "#0891B2",   # cyan-teal
+    "#166534",   # green
+    "#64748B",   # slate
+    "#92400E",   # amber
 ]
 
-FORECAST_COLOR      = PALETTE["teal"]
-FORECAST_BAND_COLOR = "rgba(20, 138, 125, 0.15)"
-HISTORICAL_COLOR    = PALETTE["ocean_blue"]
+FORECAST_COLOR      = PALETTE["gold"]
+FORECAST_BAND_COLOR = PALETTE["gold_light"]
+HISTORICAL_COLOR    = PALETTE["navy"]
 
 # ---------------------------------------------------------------------------
 # 3.  CSS INJECTION
@@ -79,290 +103,424 @@ HISTORICAL_COLOR    = PALETTE["ocean_blue"]
 def inject_css() -> None:
     """
     Inject global Streamlit CSS.
-    Call this once at the top of every page (after st.set_page_config).
+    Call once per page, immediately after st.set_page_config.
     """
+    C = PALETTE   # local shorthand
     css = f"""
     <style>
-    /* ── Google Font import ─────────────────────────────────────────────── */
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+    /* ── Fonts ──────────────────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ── Root variables ─────────────────────────────────────────────────── */
+    /* ── CSS custom properties ───────────────────────────────────────────── */
     :root {{
-        --deep-blue:      {PALETTE["deep_blue"]};
-        --ocean-blue:     {PALETTE["ocean_blue"]};
-        --mid-blue:       {PALETTE["mid_blue"]};
-        --sky-blue:       {PALETTE["sky_blue"]};
-        --teal:           {PALETTE["teal"]};
-        --soft-teal:      {PALETTE["soft_teal"]};
-        --sage-green:     {PALETTE["sage_green"]};
-        --card-bg:        {PALETTE["card_bg"]};
-        --surface:        {PALETTE["surface"]};
-        --border:         {PALETTE["border"]};
-        --text-primary:   {PALETTE["text_primary"]};
-        --text-secondary: {PALETTE["text_secondary"]};
-        --text-light:     {PALETTE["text_light"]};
+        --m-navy-deep:   {C["navy_deep"]};
+        --m-navy:        {C["navy"]};
+        --m-navy-body:   {C["navy_body"]};
+        --m-gold:        {C["gold"]};
+        --m-surface:     {C["surface"]};
+        --m-card:        {C["card_bg"]};
+        --m-border:      {C["border"]};
+        --m-border-lt:   {C["border_light"]};
+        --m-text:        {C["text_body"]};
+        --m-muted:       {C["text_secondary"]};
+        --m-light:       {C["text_light"]};
     }}
 
-    /* ── Global typography ──────────────────────────────────────────────── */
+    /* ── Global base ─────────────────────────────────────────────────────── */
     html, body, [class*="css"] {{
-        font-family: 'DM Sans', sans-serif;
-        color: var(--text-primary);
+        font-family: 'Inter', sans-serif !important;
+        color: var(--m-text) !important;
+        -webkit-font-smoothing: antialiased;
     }}
 
-    /* ── Page background ────────────────────────────────────────────────── */
+    /* ── Page canvas ─────────────────────────────────────────────────────── */
     .main .block-container {{
-        background-color: {PALETTE["surface"]};
-        padding: 2rem 2.5rem 3rem 2.5rem;
-        max-width: 1280px;
+        background-color: {C["surface"]} !important;
+        padding: 2rem 3rem 4rem 3rem !important;
+        max-width: 1340px !important;
     }}
 
-    /* ── Sidebar ────────────────────────────────────────────────────────── */
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
     section[data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, {PALETTE["deep_blue"]} 0%, {PALETTE["ocean_blue"]} 100%);
+        background: linear-gradient(175deg, {C["navy_deep"]} 0%, {C["navy"]} 100%) !important;
+        border-right: 1px solid rgba(212,166,74,0.18) !important;
     }}
     section[data-testid="stSidebar"] * {{
-        color: #FFFFFF !important;
+        color: rgba(255,255,255,0.9) !important;
+        font-family: 'Inter', sans-serif !important;
     }}
-    section[data-testid="stSidebar"] .stRadio label,
-    section[data-testid="stSidebar"] .stSelectbox label {{
-        color: rgba(255,255,255,0.75) !important;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }}
-    section[data-testid="stSidebar"] a {{
-        color: {PALETTE["soft_teal"]} !important;
-    }}
-
-    /* ── Main page title ────────────────────────────────────────────────── */
-    h1 {{
-        font-family: 'DM Serif Display', serif;
-        font-size: 2rem !important;
+    section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {{
+        font-size: 0.875rem !important;
         font-weight: 400 !important;
-        color: {PALETTE["deep_blue"]} !important;
-        letter-spacing: -0.02em;
-        padding-bottom: 0.25rem;
-        border-bottom: 3px solid {PALETTE["teal"]};
-        margin-bottom: 1.25rem !important;
+        color: rgba(255,255,255,0.82) !important;
+        padding: 0.35rem 0.5rem !important;
+        border-radius: 4px !important;
+        transition: color 0.15s ease !important;
+    }}
+    section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {{
+        color: {C["gold"]} !important;
+        background: rgba(212,166,74,0.08) !important;
+    }}
+    section[data-testid="stSidebar"] [aria-selected="true"] {{
+        background: rgba(212,166,74,0.14) !important;
+        border-left: 3px solid {C["gold"]} !important;
+        color: #ffffff !important;
     }}
 
-    /* ── H2 section headers (native st.header) ──────────────────────────── */
-    h2 {{
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.15rem !important;
+    /* ── Page title  h1 ─────────────────────────────────────────────────── */
+    h1 {{
+        font-family: 'Playfair Display', serif !important;
+        font-size: 3rem !important;
         font-weight: 600 !important;
-        color: {PALETTE["ocean_blue"]} !important;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-top: 2rem !important;
-        margin-bottom: 0.75rem !important;
+        color: {C["navy"]} !important;
+        letter-spacing: -0.025em !important;
+        line-height: 1.15 !important;
+        border: none !important;
+        padding: 0 0 0.75rem 0 !important;
+        margin: 0 0 0.25rem 0 !important;
+    }}
+
+    /* ── H2  st.header ──────────────────────────────────────────────────── */
+    h2 {{
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+        color: {C["navy"]} !important;
+        letter-spacing: -0.01em !important;
+        margin-top: 2.5rem !important;
+        margin-bottom: 0.9rem !important;
     }}
 
     /* ── H3 ─────────────────────────────────────────────────────────────── */
     h3 {{
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.05rem !important;
         font-weight: 600 !important;
-        color: {PALETTE["text_primary"]} !important;
-        margin-bottom: 0.5rem !important;
+        color: {C["navy_body"]} !important;
+        margin-bottom: 0.55rem !important;
     }}
 
-    /* ── Body text ──────────────────────────────────────────────────────── */
-    p, li, .stMarkdown p {{
-        font-size: 1rem;
-        line-height: 1.75;
-        color: {PALETTE["text_primary"]};
+    /* ── Body copy ───────────────────────────────────────────────────────── */
+    p, li {{
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1rem !important;
+        line-height: 1.8 !important;
+        color: {C["text_body"]} !important;
+        font-weight: 400 !important;
+    }}
+    .stMarkdown p {{
+        font-size: 1rem !important;
+        line-height: 1.8 !important;
+        color: {C["text_body"]} !important;
     }}
 
-    /* ── Metrics ────────────────────────────────────────────────────────── */
+    /* ── Captions ────────────────────────────────────────────────────────── */
+    .stCaption, [data-testid="stCaptionContainer"] p {{
+        font-size: 0.85rem !important;
+        color: {C["text_secondary"]} !important;
+        line-height: 1.6 !important;
+    }}
+
+    /* ── Metric cards ────────────────────────────────────────────────────── */
     div[data-testid="metric-container"] {{
-        background: {PALETTE["white"]};
-        border: 1px solid {PALETTE["border"]};
-        border-left: 4px solid {PALETTE["teal"]};
-        border-radius: 8px;
-        padding: 1rem 1.25rem !important;
-        box-shadow: 0 1px 4px rgba(11,45,78,0.06);
+        background: {C["card_bg"]} !important;
+        border: 1px solid {C["border"]} !important;
+        border-top: 3px solid {C["gold"]} !important;
+        border-radius: 6px !important;
+        padding: 1.4rem 1.5rem 1.25rem !important;
+        box-shadow: 0 1px 8px rgba(0,59,92,0.07) !important;
+        transition: box-shadow 0.2s ease !important;
+    }}
+    div[data-testid="metric-container"]:hover {{
+        box-shadow: 0 4px 18px rgba(0,59,92,0.12) !important;
     }}
     div[data-testid="metric-container"] label {{
-        font-size: 0.78rem !important;
-        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.07em !important;
-        color: {PALETTE["text_secondary"]} !important;
+        letter-spacing: 0.11em !important;
+        color: {C["text_secondary"]} !important;
     }}
     div[data-testid="metric-container"] [data-testid="stMetricValue"] {{
-        font-size: 1.75rem !important;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 2.1rem !important;
         font-weight: 600 !important;
-        color: {PALETTE["deep_blue"]} !important;
+        color: {C["navy"]} !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.025em !important;
     }}
     div[data-testid="metric-container"] [data-testid="stMetricDelta"] {{
         font-size: 0.8rem !important;
-    }}
-    div[data-testid="metric-container"] [data-testid="stMetricDelta"] svg {{
-        width: 0.85rem; height: 0.85rem;
+        font-weight: 500 !important;
     }}
 
-    /* ── st.info / st.warning / st.success ──────────────────────────────── */
+    /* ── Alert / info box ────────────────────────────────────────────────── */
     div[data-testid="stAlert"] {{
-        border-radius: 8px;
-        border-left-width: 4px;
-        font-size: 0.88rem;
+        border-radius: 5px !important;
+        border-left-width: 4px !important;
+        font-size: 0.92rem !important;
+        padding: 0.85rem 1.2rem !important;
     }}
 
-    /* ── Dataframes & tables ─────────────────────────────────────────────── */
+    /* ── Dataframes ──────────────────────────────────────────────────────── */
     .stDataFrame {{
-        border: 1px solid {PALETTE["border"]};
-        border-radius: 8px;
-        overflow: hidden;
+        border: 1px solid {C["border"]} !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        box-shadow: 0 1px 4px rgba(0,59,92,0.05) !important;
     }}
-    .stDataFrame th {{
-        background: {PALETTE["ocean_blue"]} !important;
+    .stDataFrame thead th {{
+        background: {C["navy"]} !important;
         color: #ffffff !important;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0.65rem 0.9rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.09em !important;
+        padding: 0.7rem 1rem !important;
     }}
     .stDataFrame td {{
-        font-size: 0.85rem;
-        color: {PALETTE["text_primary"]};
-        padding: 0.55rem 0.9rem !important;
+        font-size: 0.9rem !important;
+        color: {C["text_body"]} !important;
+        padding: 0.6rem 1rem !important;
+        font-family: 'Inter', sans-serif !important;
     }}
     .stDataFrame tr:nth-child(even) td {{
-        background-color: {PALETTE["card_bg"]};
+        background-color: {C["surface"]} !important;
     }}
 
     /* ── Buttons ─────────────────────────────────────────────────────────── */
     .stDownloadButton > button,
     .stButton > button {{
-        background: {PALETTE["ocean_blue"]};
-        color: #ffffff;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        padding: 0.5rem 1.25rem;
-        transition: background 0.2s ease;
+        background: {C["navy"]} !important;
+        color: #ffffff !important;
+        border: 1px solid {C["navy"]} !important;
+        border-radius: 4px !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.84rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.03em !important;
+        padding: 0.5rem 1.35rem !important;
+        transition: all 0.18s ease !important;
     }}
     .stDownloadButton > button:hover,
     .stButton > button:hover {{
-        background: {PALETTE["teal"]};
-        color: #ffffff;
+        background: {C["navy_deep"]} !important;
+        border-color: {C["navy_deep"]} !important;
+        color: #ffffff !important;
     }}
 
-    /* ── Select / multiselect / slider ───────────────────────────────────── */
+    /* ── Form widget labels ──────────────────────────────────────────────── */
     .stSelectbox label,
     .stMultiSelect label,
     .stSlider label,
     .stRadio label,
     .stCheckbox label {{
-        font-size: 0.78rem !important;
-        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
-        color: {PALETTE["text_secondary"]} !important;
+        letter-spacing: 0.09em !important;
+        color: {C["text_secondary"]} !important;
     }}
 
-    /* ── Expander ─────────────────────────────────────────────────────────── */
-    .streamlit-expanderHeader {{
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: {PALETTE["ocean_blue"]};
-        background: {PALETTE["card_bg"]};
-        border: 1px solid {PALETTE["border"]};
-        border-radius: 6px;
-        padding: 0.6rem 1rem;
+    /* ── Expanders ───────────────────────────────────────────────────────── */
+    .streamlit-expanderHeader,
+    [data-testid="stExpander"] summary {{
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        color: {C["navy"]} !important;
+        background: {C["card_bg"]} !important;
+        border: 1px solid {C["border"]} !important;
+        border-radius: 5px !important;
+        padding: 0.65rem 1rem !important;
     }}
 
-    /* ── Plotly chart container ───────────────────────────────────────────── */
+    /* ── Plotly chart wrapper ────────────────────────────────────────────── */
     .stPlotlyChart {{
-        background: {PALETTE["white"]};
-        border: 1px solid {PALETTE["border"]};
-        border-radius: 10px;
-        padding: 0.5rem;
-        box-shadow: 0 1px 6px rgba(11,45,78,0.07);
+        background: {C["card_bg"]} !important;
+        border: 1px solid {C["border"]} !important;
+        border-radius: 8px !important;
+        padding: 0.5rem !important;
+        box-shadow: 0 1px 8px rgba(0,59,92,0.06) !important;
     }}
 
-    /* ── Custom info/callout card ────────────────────────────────────────── */
-    .nz-info-card {{
-        background: {PALETTE["white"]};
-        border: 1px solid {PALETTE["border"]};
-        border-left: 4px solid {PALETTE["ocean_blue"]};
-        border-radius: 8px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-        box-shadow: 0 1px 4px rgba(11,45,78,0.05);
+    /* ═══════════════════════════════════════════════════════════════════════
+       CUSTOM COMPONENTS
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    /* ── Page title area (used in inner pages via page_hero helper) ──────── */
+    .m-page-title-area {{
+        padding: 0 0 1.25rem 0;
+        margin-bottom: 0.25rem;
+        border-bottom: 3px solid {C["gold"]};
     }}
-    .nz-info-card .nz-card-title {{
-        font-size: 0.85rem;
+    .m-page-eyebrow {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1.68rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: {PALETTE["ocean_blue"]};
-        margin-bottom: 0.4rem;
+        letter-spacing: 0.18em;
+        color: {C["gold"]};
+        margin-bottom: 0.35rem;
     }}
-    .nz-info-card .nz-card-body {{
-        font-size: 0.95rem;
-        color: {PALETTE["text_primary"]};
-        line-height: 1.65;
+    .m-page-title {{
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        font-weight: 600;
+        color: {C["navy"]};
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        margin: 0 0 0.5rem 0;
+    }}
+    .m-page-subtitle {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: {C["text_secondary"]};
+        line-height: 1.7;
+        max-width: 800px;
         margin: 0;
     }}
 
-    /* ── Section header block ────────────────────────────────────────────── */
-    .nz-section-header {{
+    /* ── Section header ──────────────────────────────────────────────────── */
+    .m-section {{
+        margin-top: 2.75rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.55rem;
+        border-bottom: 2px solid {C["gold"]};
         display: flex;
         align-items: baseline;
         gap: 0.75rem;
-        margin-top: 2rem;
-        margin-bottom: 0.6rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid {PALETTE["border"]};
     }}
-    .nz-section-header .nz-sh-title {{
-        font-size: 0.8rem;
+    .m-section-title {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: {PALETTE["ocean_blue"]};
+        color: {C["navy"]};
+        letter-spacing: -0.01em;
     }}
-    .nz-section-header .nz-sh-subtitle {{
-        font-size: 0.9rem;
-        color: {PALETTE["text_secondary"]};
+    .m-section-sub {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: {C["text_secondary"]};
     }}
 
-    /* ── Takeaway / key-insight block ────────────────────────────────────── */
-    .nz-takeaway {{
-        background: linear-gradient(135deg, {PALETTE["info_bg"]}, #e8f5f2);
-        border: 1px solid {PALETTE["teal"]};
-        border-left: 4px solid {PALETTE["teal"]};
-        border-radius: 8px;
-        padding: 0.9rem 1.25rem;
-        margin-top: 1rem;
+    /* ── Info / feature card ─────────────────────────────────────────────── */
+    .m-card {{
+        background: {C["card_bg"]};
+        border: 1px solid {C["border"]};
+        border-top: 3px solid {C["gold"]};
+        border-radius: 6px;
+        padding: 1.5rem 1.5rem 1.4rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 6px rgba(0,59,92,0.06);
+        height: 100%;
+        box-sizing: border-box;
     }}
-    .nz-takeaway .nz-tk-label {{
-        font-size: 0.76rem;
+    .m-card-icon {{
+        font-size: 1.5rem;
+        margin-bottom: 0.65rem;
+        display: block;
+        line-height: 1;
+    }}
+    .m-card-label {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.68rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: {PALETTE["teal"]};
-        margin-bottom: 0.35rem;
+        letter-spacing: 0.12em;
+        color: {C["gold"]};
+        margin-bottom: 0.45rem;
     }}
-    .nz-takeaway .nz-tk-text {{
-        font-size: 1rem;
-        color: {PALETTE["text_primary"]};
+    .m-card-title {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: {C["navy"]};
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }}
+    .m-card-body {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
+        color: {C["text_body"]};
         line-height: 1.7;
         margin: 0;
     }}
 
-    /* ── Controls panel ──────────────────────────────────────────────────── */
-    .nz-controls-panel {{
-        background: {PALETTE["white"]};
-        border: 1px solid {PALETTE["border"]};
-        border-radius: 10px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 4px rgba(11,45,78,0.05);
+    /* ── Takeaway / insight callout ──────────────────────────────────────── */
+    .m-takeaway {{
+        background: {C["navy"]};
+        border-left: 4px solid {C["gold"]};
+        border-radius: 6px;
+        padding: 1.4rem 1.75rem;
+        margin-top: 1.75rem;
+        margin-bottom: 0.5rem;
+    }}
+    .m-takeaway .m-tk-label {{
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.66rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.16em !important;
+        color: {C["gold"]} !important;
+        margin-bottom: 0.5rem !important;
+        display: block !important;
+    }}
+    .m-takeaway .m-tk-text {{
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1rem !important;
+        font-weight: 400 !important;
+        color: rgba(255,255,255,0.93) !important;
+        line-height: 1.75 !important;
+        margin: 0 !important;
+    }}
+
+    /* ── Controls / filter panel ─────────────────────────────────────────── */
+    .m-controls {{
+        background: {C["card_bg"]};
+        border: 1px solid {C["border"]};
+        border-radius: 6px;
+        padding: 1.35rem 1.75rem;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 1px 4px rgba(0,59,92,0.04);
+    }}
+
+    /* ── Direction / status card ─────────────────────────────────────────── */
+    .m-status-card {{
+        background: {C["card_bg"]};
+        border: 1px solid {C["border"]};
+        border-top: 3px solid {C["gold"]};
+        border-radius: 6px;
+        padding: 1.4rem 1.5rem 1.2rem;
+        box-shadow: 0 1px 8px rgba(0,59,92,0.07);
+    }}
+    .m-status-label {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.11em;
+        color: {C["text_secondary"]};
+        margin-bottom: 0.4rem;
+    }}
+    .m-status-value {{
+        font-family: 'Playfair Display', serif;
+        font-size: 1.55rem;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+    }}
+
+    /* ── Misc ────────────────────────────────────────────────────────────── */
+    hr {{
+        border: none !important;
+        border-top: 1px solid {C["border"]} !important;
+        margin: 2rem 0 !important;
     }}
     </style>
     """
@@ -373,21 +531,69 @@ def inject_css() -> None:
 # 4.  COMPONENT HELPERS
 # ---------------------------------------------------------------------------
 
-def section_header(title: str, subtitle: str = "") -> None:
+def page_hero(
+    title: str,
+    subtitle: str = "",
+    eyebrow: str = "NZ Labour Market Intelligence",
+) -> None:
     """
-    Render a styled section divider with an optional subtitle.
+    Full-width navy hero banner for inner pages.
+    Rendered above all page content, replaces st.title() on inner pages.
 
-    Parameters
-    ----------
-    title    : Short all-caps label (e.g. "Regional Trends")
-    subtitle : Optional longer description shown inline
+    title    — large Playfair Display heading
+    subtitle — optional single-line description
+    eyebrow  — small all-caps label above the title
     """
-    subtitle_html = f'<span class="nz-sh-subtitle">— {subtitle}</span>' if subtitle else ""
+    C = PALETTE
+    subtitle_html = (
+        f'<p style="font-family:Inter,sans-serif; font-size:1rem; font-weight:300; '
+        f'color:rgba(255,255,255,0.8); line-height:1.7; max-width:760px; margin:0.75rem 0 0 0;">'
+        f'{subtitle}</p>'
+    ) if subtitle else ""
+
     st.markdown(
         f"""
-        <div class="nz-section-header">
-            <span class="nz-sh-title">{title}</span>
+        <div style="
+            background: linear-gradient(135deg, {C['navy_deep']} 0%, {C['navy']} 100%);
+            border-radius: 8px;
+            border-bottom: 3px solid {C['gold']};
+            padding: 2.5rem 3rem;
+            margin-bottom: 2.25rem;
+            box-shadow: 0 3px 20px rgba(0,38,58,0.15);
+        ">
+            <div style="
+                font-family: 'Inter', sans-serif;
+                font-size: 0.66rem; font-weight: 700;
+                text-transform: uppercase; letter-spacing: 0.2em;
+                color: {C['gold']}; margin-bottom: 0.65rem;
+            ">{eyebrow}</div>
+            <div style="
+                font-family: 'Playfair Display', serif;
+                font-size: 3rem; font-weight: 600;
+                color: #ffffff; line-height: 1.15;
+                letter-spacing: -0.025em; margin: 0;
+            ">{title}</div>
             {subtitle_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def section_header(title: str, subtitle: str = "") -> None:
+    """
+    Branded section divider with gold 2px underline.
+    title    — bold navy label
+    subtitle — optional muted descriptor inline
+    """
+    sub_html = (
+        f'<span class="m-section-sub">— {subtitle}</span>'
+    ) if subtitle else ""
+    st.markdown(
+        f"""
+        <div class="m-section">
+            <span class="m-section-title">{title}</span>
+            {sub_html}
         </div>
         """,
         unsafe_allow_html=True,
@@ -396,20 +602,18 @@ def section_header(title: str, subtitle: str = "") -> None:
 
 def info_card(title: str, body: str, icon: str = "") -> None:
     """
-    Render a styled informational card.
-
-    Parameters
-    ----------
-    title : Card heading (displayed in brand blue, uppercase)
-    body  : Card body text
-    icon  : Optional emoji or Unicode icon prepended to the title
+    White card with gold top-border.
+    title — card heading (displayed in navy)
+    body  — body paragraph
+    icon  — optional emoji prefix
     """
-    prefix = f"{icon} " if icon else ""
+    icon_html = f'<span class="m-card-icon">{icon}</span>' if icon else ""
     st.markdown(
         f"""
-        <div class="nz-info-card">
-            <div class="nz-card-title">{prefix}{title}</div>
-            <p class="nz-card-body">{body}</p>
+        <div class="m-card">
+            {icon_html}
+            <div class="m-card-title">{title}</div>
+            <p class="m-card-body">{body}</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -418,18 +622,15 @@ def info_card(title: str, body: str, icon: str = "") -> None:
 
 def takeaway_card(text: str, label: str = "Key Insight") -> None:
     """
-    Render a teal-accented 'key takeaway' callout.
-
-    Parameters
-    ----------
-    text  : The insight sentence(s)
-    label : Override the label prefix (default "Key Insight")
+    Navy callout block with gold left-border and white body text.
+    text  — insight paragraph
+    label — eyebrow label (default "Key Insight")
     """
     st.markdown(
         f"""
-        <div class="nz-takeaway">
-            <div class="nz-tk-label">&#9670; {label}</div>
-            <p class="nz-tk-text">{text}</p>
+        <div class="m-takeaway">
+            <span class="m-tk-label">&#9670; {label}</span>
+            <p class="m-tk-text">{text}</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -437,12 +638,12 @@ def takeaway_card(text: str, label: str = "Key Insight") -> None:
 
 
 def controls_panel_open() -> None:
-    """Open a styled controls panel wrapper (must call controls_panel_close() after)."""
-    st.markdown('<div class="nz-controls-panel">', unsafe_allow_html=True)
+    """Open a styled filter/controls panel wrapper."""
+    st.markdown('<div class="m-controls">', unsafe_allow_html=True)
 
 
 def controls_panel_close() -> None:
-    """Close the controls panel wrapper opened by controls_panel_open()."""
+    """Close the controls panel opened by controls_panel_open."""
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -455,69 +656,57 @@ def plotly_layout(
     x_label: str = "",
     y_label: str = "",
     legend: bool = True,
-    height: int = 420,
+    height: int = 440,
 ) -> dict:
     """
-    Return a consistent Plotly layout dict for all charts in the dashboard.
+    Return a consistent Plotly layout dict for every chart in the dashboard.
 
-    Usage
-    -----
-        fig = go.Figure(data=[...])
-        fig.update_layout(**plotly_layout("NZ Hiring Demand Trend", "Date", "Index"))
-        st.plotly_chart(fig, use_container_width=True)
-
-    Parameters
-    ----------
-    title   : Chart title string
-    x_label : X-axis title
-    y_label : Y-axis title
-    legend  : Whether to show the legend
-    height  : Chart height in pixels
+    Design language
+    ---------------
+    - Playfair Display chart titles (formal, matches page typography)
+    - Inter tick labels and axis labels
+    - Very subtle #EEF2F7 gridlines — visible but not distracting
+    - #003B5C navy hover tooltip with gold border
+    - Transparent paper + plot backgrounds (card container provides white bg)
     """
-    font_family = "DM Sans, sans-serif"
-
+    C = PALETTE
     return dict(
         title=dict(
             text=title,
-            font=dict(
-                family="DM Serif Display, serif",
-                size=17,
-                color=PALETTE["deep_blue"],
-            ),
-            x=0.0,
-            xanchor="left",
-            pad=dict(l=4, b=8),
+            font=dict(family="Playfair Display, serif", size=18, color=C["navy"]),
+            x=0.0, xanchor="left",
+            pad=dict(l=6, b=12),
         ),
         height=height,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(
-            family=font_family,
-            size=12,
-            color=PALETTE["text_secondary"],
-        ),
+        font=dict(family="Inter, sans-serif", size=12, color=C["text_secondary"]),
         xaxis=dict(
             title=dict(
                 text=x_label,
-                font=dict(size=11, color=PALETTE["text_light"]),
+                font=dict(family="Inter, sans-serif", size=11, color=C["text_light"]),
             ),
-            tickfont=dict(size=10, color=PALETTE["text_secondary"]),
+            tickfont=dict(
+                family="Inter, sans-serif", size=11, color=C["text_secondary"]
+            ),
             showgrid=False,
             showline=True,
-            linecolor=PALETTE["border"],
+            linecolor=C["border"],
             linewidth=1,
             ticks="outside",
             ticklen=4,
-            tickcolor=PALETTE["border"],
+            tickcolor=C["border"],
         ),
         yaxis=dict(
             title=dict(
                 text=y_label,
-                font=dict(size=11, color=PALETTE["text_light"]),
+                font=dict(family="Inter, sans-serif", size=11, color=C["text_light"]),
             ),
-            tickfont=dict(size=10, color=PALETTE["text_secondary"]),
+            tickfont=dict(
+                family="Inter, sans-serif", size=11, color=C["text_secondary"]
+            ),
             showgrid=True,
-            gridcolor=PALETTE["border"],
+            gridcolor=C["border_light"],
             gridwidth=1,
             zeroline=False,
             showline=False,
@@ -525,23 +714,18 @@ def plotly_layout(
         legend=dict(
             visible=legend,
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="left",
-            x=0,
-            font=dict(size=11, color=PALETTE["text_secondary"]),
+            yanchor="bottom", y=1.02,
+            xanchor="left",   x=0,
+            font=dict(family="Inter, sans-serif", size=12, color=C["text_secondary"]),
             bgcolor="rgba(0,0,0,0)",
             borderwidth=0,
         ),
-        margin=dict(l=50, r=20, t=60, b=50),
+        margin=dict(l=56, r=24, t=70, b=56),
         hoverlabel=dict(
-            bgcolor=PALETTE["deep_blue"],
-            bordercolor=PALETTE["teal"],
-            font=dict(
-                family=font_family,
-                size=12,
-                color="#ffffff",
-            ),
+            bgcolor=C["navy"],
+            bordercolor=C["gold"],
+            font=dict(family="Inter, sans-serif", size=12, color="#ffffff"),
+            namelength=-1,
         ),
         hovermode="x unified",
     )
@@ -556,25 +740,14 @@ def line_trace(
     width: int = 2,
     show_markers: bool = False,
 ) -> go.Scatter:
-    """
-    Return a styled Plotly Scatter trace for a line chart.
-
-    Parameters
-    ----------
-    x            : X-axis data (e.g. date series)
-    y            : Y-axis data
-    name         : Legend / hover name
-    color        : Line colour (defaults to CHART_COLORS[0])
-    dash         : Line dash style ("solid", "dot", "dash")
-    width        : Line width in pixels
-    show_markers : Whether to show circle markers on each data point
-    """
+    """Styled Plotly line (Scatter) trace."""
     c = color or CHART_COLORS[0]
-    marker = dict(size=5, color=c) if show_markers else dict(size=0)
+    marker = (
+        dict(size=6, color=c, line=dict(color="#ffffff", width=1.5))
+        if show_markers else dict(size=0)
+    )
     return go.Scatter(
-        x=x,
-        y=y,
-        name=name,
+        x=x, y=y, name=name,
         mode="lines+markers" if show_markers else "lines",
         line=dict(color=c, width=width, dash=dash),
         marker=marker,
@@ -582,46 +755,20 @@ def line_trace(
     )
 
 
-def bar_trace(
-    x,
-    y,
-    name: str,
-    color: str = None,
-) -> go.Bar:
-    """
-    Return a styled Plotly Bar trace.
-
-    Parameters
-    ----------
-    x     : Category labels
-    y     : Bar heights
-    name  : Legend / hover name
-    color : Bar colour (defaults to CHART_COLORS[0])
-    """
+def bar_trace(x, y, name: str, color: str = None) -> go.Bar:
+    """Styled Plotly bar trace."""
     c = color or CHART_COLORS[0]
     return go.Bar(
-        x=x,
-        y=y,
-        name=name,
-        marker=dict(
-            color=c,
-            line=dict(width=0),
-        ),
+        x=x, y=y, name=name,
+        marker=dict(color=c, line=dict(width=0)),
         hovertemplate=f"<b>{name}</b>: %{{y:.1f}}<extra></extra>",
     )
 
 
-def forecast_band_trace(x, lower, upper, name: str = "Forecast interval") -> go.Scatter:
-    """
-    Return a shaded confidence-band trace for forecast charts.
-
-    Parameters
-    ----------
-    x     : Date / X values (shared with forecast line)
-    lower : Lower-bound series
-    upper : Upper-bound series
-    name  : Hover/legend label
-    """
+def forecast_band_trace(
+    x, lower, upper, name: str = "Forecast Interval"
+) -> go.Scatter:
+    """Shaded confidence-band polygon trace for forecast charts."""
     x_rev = list(x)[::-1]
     y_rev = list(lower)[::-1]
     return go.Scatter(
