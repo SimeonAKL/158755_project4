@@ -53,7 +53,7 @@ PALETTE = {
     "navy_mid":    "#1E293B",   # alias used by pages (kept for compat)
 
     # ── Gold accent ──────────────────────────────────────────────────────
-    "gold":        "#D4A64A",   # single accent — section rules, borders, eyebrows
+    "gold":        "#F1A50B",   # single accent — section rules, borders, eyebrows
     "gold_light":  "rgba(212,166,74,0.12)",  # forecast band fill
 
     # ── Surface & card ───────────────────────────────────────────────────
@@ -68,7 +68,7 @@ PALETTE = {
     "text_primary":   "#1E293B",   # headings, metric values
     "text_body":      "#1E293B",   # body copy — high contrast on white
     "text_secondary": "#FFFFFF",   # captions, labels, muted
-    "text_light":     "#94A3B8",   # placeholders, disabled
+    "text_light":     "#F0F2F5",   # placeholders, disabled
 
     # ── Semantic ─────────────────────────────────────────────────────────
     "white":       "#FFFFFF",
