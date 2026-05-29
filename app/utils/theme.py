@@ -547,7 +547,7 @@ def page_hero(
     C = PALETTE
     subtitle_html = (
         f'<div style="font-family:Inter,sans-serif; font-size:1rem; font-weight:300; '
-        f'color:#FFFFFF; line-height:1.7; max-width:760px; margin:0.75rem 0 0 0;">'
+        f'color:#FFFFFF; line-height:1.7; max-width:1000px; margin:0.75rem 0 0 0;">'
         f'{subtitle}</div>'
     ) if subtitle else ""
 
@@ -571,7 +571,7 @@ def page_hero(
                 font-family: 'Playfair Display', serif;
                 font-size: 3rem; font-weight: 1000;
                 color: #ffffff; line-height: 1.15;
-                letter-spacing: -0.025em; margin: 0;
+                letter-spacing: 0.060em; margin: 0;
             ">{title}</div>
             {subtitle_html}
         </div>
