@@ -6,8 +6,8 @@ st.title("Project Overview")
 
 st.write(
     """
-This project examines short-term labour demand trends in New Zealand using Jobs Online data and official labour market data from Stats NZ. 
-The project focuses on how online labour demand has changed over time, how it differs across regions, industries, and occupations, 
+This dashboard presents an interactive view of short-term labour demand trends in New Zealand using Jobs Online data and official labour market data from Stats NZ. 
+It examines how online labour demand has changed over time, how it differs across regions, industries, and occupations, 
 and whether recent vacancy patterns can support short-term forecasting over the next 3–6 months.
 """
 )
@@ -130,7 +130,8 @@ Use the navigation menu on the left to move through the main parts of the projec
 - **NZ Labour Demand Trends** shows the overall trend in labour demand over time  
 - **Region Comparison** compares labour-demand patterns across different regions  
 - **Industry Occupation Comparison** explores subgroup differences  
-- **Forecast Page** presents short-term forecasting results  
+- **Forecast Explorer** presents short-term forecasting results in a more interactive form  
 - **Official Labour Context** provides supporting interpretation using Stats NZ data  
+- **Custom Explorer** allows users to explore selected labour-demand series by group and time range  
 """
 )

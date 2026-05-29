@@ -46,33 +46,77 @@ if missing_cols:
     st.stop()
 
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-df = df.sort_values(date_col).reset_index(drop=True)
+df = df.dropna(subset=[date_col]).sort_values(date_col).reset_index(drop=True)
+
+# ============================================================
+# Controls
+# ============================================================
+st.header("Controls")
+
+min_date = df[date_col].min().date()
+max_date = df[date_col].max().date()
+
+date_range = st.slider(
+    "Select date range",
+    min_value=min_date,
+    max_value=max_date,
+    value=(min_date, max_date)
+)
+
+skill_view = st.radio(
+    "Skilled vs Unskilled view",
+    ["Both", "Skilled only", "Unskilled only"],
+    horizontal=True
+)
+
+start_date, end_date = date_range
+
+df_filtered = df[
+    (df[date_col].dt.date >= start_date) &
+    (df[date_col].dt.date <= end_date)
+].copy()
+
+if df_filtered.empty:
+    st.warning("No data available for the selected date range.")
+    st.stop()
 
 # ============================================================
 # Data overview
 # ============================================================
 st.header("Data Overview")
 st.write(f"Dataset path: {DATA_PATH}")
-st.write(f"Shape: {df.shape}")
-st.dataframe(df.head())
+st.write(f"Full dataset shape: {df.shape}")
+st.write(f"Filtered dataset shape: {df_filtered.shape}")
+st.write(
+    f"Selected date range: **{start_date.strftime('%d %b %Y')}** to **{end_date.strftime('%d %b %Y')}**"
+)
+
+with st.expander("Show raw data preview"):
+    st.dataframe(df_filtered.head(), use_container_width=True)
 
 # ============================================================
 # Summary indicators
 # ============================================================
 st.header("Summary Indicators")
 
-latest_value = df[total_col].dropna().iloc[-1]
-peak_value = df[total_col].max()
-trough_value = df[total_col].min()
+latest_value = df_filtered[total_col].dropna().iloc[-1]
+peak_value = df_filtered[total_col].max()
+trough_value = df_filtered[total_col].min()
 
-peak_date = df.loc[df[total_col].idxmax(), date_col]
-trough_date = df.loc[df[total_col].idxmin(), date_col]
-latest_date = df[date_col].dropna().iloc[-1]
+peak_date = df_filtered.loc[df_filtered[total_col].idxmax(), date_col]
+trough_date = df_filtered.loc[df_filtered[total_col].idxmin(), date_col]
+latest_date = df_filtered[date_col].dropna().iloc[-1]
+
+if len(df_filtered[total_col].dropna()) >= 2:
+    previous_value = df_filtered[total_col].dropna().iloc[-2]
+    latest_delta = latest_value - previous_value
+else:
+    latest_delta = 0.0
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Latest vacancy index", f"{latest_value:.1f}")
+    st.metric("Latest vacancy index", f"{latest_value:.1f}", f"{latest_delta:+.1f}")
 
 with col2:
     st.metric("Peak vacancy index", f"{peak_value:.1f}")
@@ -87,14 +131,16 @@ st.write(f"Lowest observation: {trough_date.strftime('%b %Y')}")
 # ============================================================
 # Overall NZ Vacancy Trend
 # ============================================================
-st.header("Overall NZ Vacancy Trend (2007–2026)")
+st.header("Overall NZ Vacancy Trend")
 
 fig1, ax1 = plt.subplots(figsize=(10, 5))
-ax1.plot(df[date_col], df[total_col])
+ax1.plot(df_filtered[date_col], df_filtered[total_col], label="Total vacancy index")
 ax1.set_title("Overall NZ Vacancy Trend")
 ax1.set_xlabel("Date")
 ax1.set_ylabel("Vacancy Index")
 ax1.grid(True, alpha=0.3)
+ax1.legend()
+
 st.pyplot(fig1)
 
 st.write(
@@ -111,16 +157,19 @@ contains meaningful short-term variation and is therefore relevant for later for
 # ============================================================
 st.header("Annual Change in Labour Demand")
 
-df["year"] = df[date_col].dt.year
-annual_avg = df.groupby("year")[total_col].mean().reset_index()
+annual_df = df_filtered.copy()
+annual_df["year"] = annual_df[date_col].dt.year
+annual_avg = annual_df.groupby("year")[total_col].mean().reset_index()
 annual_avg["annual_change_pct"] = annual_avg[total_col].pct_change() * 100
 
 fig2, ax2 = plt.subplots(figsize=(10, 5))
 ax2.bar(annual_avg["year"].astype(str), annual_avg["annual_change_pct"])
+ax2.axhline(0, linestyle="--")
 ax2.set_title("Annual Percentage Change in Vacancy Index")
 ax2.set_xlabel("Year")
 ax2.set_ylabel("Percentage Change (%)")
 ax2.grid(True, axis="y", alpha=0.3)
+
 st.pyplot(fig2)
 
 st.write(
@@ -137,13 +186,19 @@ economic conditions and should be interpreted as a dynamic rather than stable se
 st.header("Skilled vs Unskilled Labour Demand")
 
 fig3, ax3 = plt.subplots(figsize=(10, 5))
-ax3.plot(df[date_col], df[skilled_col], label="Skilled")
-ax3.plot(df[date_col], df[unskilled_col], label="Unskilled")
+
+if skill_view in ["Both", "Skilled only"]:
+    ax3.plot(df_filtered[date_col], df_filtered[skilled_col], label="Skilled")
+
+if skill_view in ["Both", "Unskilled only"]:
+    ax3.plot(df_filtered[date_col], df_filtered[unskilled_col], label="Unskilled")
+
 ax3.set_title("Skilled vs Unskilled Labour Demand")
 ax3.set_xlabel("Date")
 ax3.set_ylabel("Vacancy Index")
 ax3.legend()
 ax3.grid(True, alpha=0.3)
+
 st.pyplot(fig3)
 
 st.write(
@@ -160,11 +215,29 @@ is not evenly distributed across workforce categories.
 # ============================================================
 st.header("Key Takeaways")
 
+long_run_avg = df_filtered[total_col].mean()
+
 st.markdown(
     f"""
-- The latest national vacancy index is **{latest_value:.1f}**.
+- The latest national vacancy index in the selected period is **{latest_value:.1f}**.
 - The highest observed vacancy index is **{peak_value:.1f}**, recorded in **{peak_date.strftime('%b %Y')}**.
 - The lowest observed vacancy index is **{trough_value:.1f}**, recorded in **{trough_date.strftime('%b %Y')}**.
+- The latest value is **{'above' if latest_value > long_run_avg else 'below'}** the average level for the selected period.
 - The national series shows clear periods of decline and recovery, which supports its use in short-term forecasting.
 """
+)
+
+# ============================================================
+# Download filtered data
+# ============================================================
+st.header("Download Data")
+
+download_df = df_filtered[[date_col, total_col, skilled_col, unskilled_col]].copy()
+csv_data = download_df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="Download filtered national trend data as CSV",
+    data=csv_data,
+    file_name="nz_labour_demand_trends_filtered.csv",
+    mime="text/csv"
 )
