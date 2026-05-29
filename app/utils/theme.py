@@ -53,7 +53,7 @@ PALETTE = {
     "navy_mid":    "#1E293B",   # alias used by pages (kept for compat)
 
     # ── Gold accent ──────────────────────────────────────────────────────
-    "gold":        "#F1A50B",   # single accent — section rules, borders, eyebrows
+    "gold":        "#D4A64A",   # single accent — section rules, borders, eyebrows
     "gold_light":  "rgba(212,166,74,0.12)",  # forecast band fill
 
     # ── Surface & card ───────────────────────────────────────────────────
@@ -67,8 +67,8 @@ PALETTE = {
     # ── Text scale ───────────────────────────────────────────────────────
     "text_primary":   "#1E293B",   # headings, metric values
     "text_body":      "#1E293B",   # body copy — high contrast on white
-    "text_secondary": "#FFFFFF",   # captions, labels, muted
-    "text_light":     "#F0F2F5",   # placeholders, disabled
+    "text_secondary": "#64748B",   # captions, labels, muted
+    "text_light":     "#94A3B8",   # placeholders, disabled
 
     # ── Semantic ─────────────────────────────────────────────────────────
     "white":       "#FFFFFF",
@@ -381,7 +381,7 @@ def inject_css() -> None:
         font-weight: 400;
         color: {C["text_secondary"]};
         line-height: 1.7;
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0;
     }}
 
@@ -546,9 +546,9 @@ def page_hero(
     """
     C = PALETTE
     subtitle_html = (
-        f'<p style="font-family:Inter,sans-serif; font-size:1rem; font-weight:300; '
-        f'color:rgba(255,255,255,0.8); line-height:1.7; max-width:760px; margin:0.75rem 0 0 0;">'
-        f'{subtitle}</p>'
+        f'<div style="font-family:Inter,sans-serif; font-size:1rem; font-weight:300; '
+        f'color:#FFFFFF; line-height:1.7; max-width:760px; margin:0.75rem 0 0 0;">'
+        f'{subtitle}</div>'
     ) if subtitle else ""
 
     st.markdown(
@@ -563,13 +563,13 @@ def page_hero(
         ">
             <div style="
                 font-family: 'Inter', sans-serif;
-                font-size: 0.66rem; font-weight: 700;
+                font-size: 1.00rem; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.2em;
                 color: {C['gold']}; margin-bottom: 0.65rem;
             ">{eyebrow}</div>
             <div style="
                 font-family: 'Playfair Display', serif;
-                font-size: 3rem; font-weight: 600;
+                font-size: 3rem; font-weight: 1000;
                 color: #ffffff; line-height: 1.15;
                 letter-spacing: -0.025em; margin: 0;
             ">{title}</div>
