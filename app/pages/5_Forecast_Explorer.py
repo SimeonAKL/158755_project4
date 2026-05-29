@@ -36,36 +36,20 @@ df_industries["date"] = pd.to_datetime(df_industries["date"], errors="coerce")
 df_regions["date"] = pd.to_datetime(df_regions["date"], errors="coerce")
 
 st.header("Forecast Selection")
-
-forecast_type = st.selectbox(
-    "Select forecast type",
-    ["National", "Industry", "Region"]
-)
-
-horizon = st.selectbox(
-    "Select number of forecast periods to display",
-    [3, 6],
-    index=1
-)
+forecast_type = st.selectbox("Select forecast type", ["National", "Industry", "Region"])
+horizon = st.selectbox("Select number of forecast periods to display", [3, 6], index=1)
 
 if forecast_type == "National":
     st.subheader("National Forecast Explorer")
-
     df_plot = df_totals[["date", "forecast", "lower_bound", "upper_bound"]].copy()
     df_plot = df_plot.dropna(subset=["forecast"]).sort_values("date").tail(horizon)
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df_plot["date"], df_plot["forecast"], marker="o", label="Forecast")
-    ax.fill_between(
-        df_plot["date"],
-        df_plot["lower_bound"],
-        df_plot["upper_bound"],
-        alpha=0.2,
-        label="Forecast interval"
-    )
-    ax.set_title("National Labour Demand Forecast")
+    ax.fill_between(df_plot["date"], df_plot["lower_bound"], df_plot["upper_bound"], alpha=0.2, label="Forecast interval")
+    ax.set_title("National Hiring Demand Forecast")
     ax.set_xlabel("Date")
-    ax.set_ylabel("Forecast Index")
+    ax.set_ylabel("Forecast level")
     ax.grid(True, alpha=0.3)
     ax.legend()
     st.pyplot(fig)
@@ -83,14 +67,14 @@ if forecast_type == "National":
 
     st.write(
         f"""
-The national forecast shows the projected short-term path of aggregate labour demand in New Zealand.
+The national forecast shows the projected short-term path of aggregate hiring demand in New Zealand.
 The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_date.strftime('%b %Y')}**.
 """
     )
 
     st.dataframe(df_plot.reset_index(drop=True), use_container_width=True)
-
     csv_data = df_plot.to_csv(index=False).encode("utf-8")
+
     st.download_button(
         label="Download national forecast as CSV",
         data=csv_data,
@@ -98,9 +82,9 @@ The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_d
         mime="text/csv"
     )
 
-    st.subheader("Business takeaway")
+    st.subheader("Key takeaway")
     st.write(
-        "Short-term forecast signals can help highlight whether aggregate labour demand is stable, strengthening, or softening in the near term."
+        "Short-term forecast signals can help decision-makers see whether aggregate hiring demand is stable, strengthening, or softening in the near term."
     )
 
 elif forecast_type == "Industry":
@@ -123,16 +107,10 @@ elif forecast_type == "Industry":
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df_plot["date"], df_plot[forecast_col], marker="o", label=selected_industry)
-    ax.fill_between(
-        df_plot["date"],
-        df_plot[lower_col],
-        df_plot[upper_col],
-        alpha=0.2,
-        label="Forecast interval"
-    )
+    ax.fill_between(df_plot["date"], df_plot[lower_col], df_plot[upper_col], alpha=0.2, label="Forecast interval")
     ax.set_title(f"{selected_industry} Forecast")
     ax.set_xlabel("Date")
-    ax.set_ylabel("Forecast Index")
+    ax.set_ylabel("Forecast level")
     ax.grid(True, alpha=0.3)
     ax.legend()
     st.pyplot(fig)
@@ -152,30 +130,25 @@ elif forecast_type == "Industry":
         current_val = df_plot[forecast_col].iloc[-1]
         previous_val = df_plot[forecast_col].iloc[-2]
         if current_val > previous_val:
-            direction_text = "shows a short-term upward direction"
+            direction_text = "a short-term upward direction"
         elif current_val < previous_val:
-            direction_text = "shows a short-term softening pattern"
+            direction_text = "a short-term softening pattern"
         else:
-            direction_text = "appears broadly stable in the short term"
-        st.info(f"{selected_industry} {direction_text} based on the latest forecast periods.")
+            direction_text = "a broadly stable short-term pattern"
+        st.info(f"{selected_industry} currently shows {direction_text}, which may matter for short-term workforce planning and hiring strategy.")
 
     st.write(
         f"""
-This chart shows the projected short-term labour-demand path for **{selected_industry}**.
+The latest forecast suggests where short-term hiring demand is heading for **{selected_industry}**.
 The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_date.strftime('%b %Y')}**.
 """
     )
 
-    display_df = df_plot.rename(columns={
-        forecast_col: "forecast",
-        lower_col: "lower_bound",
-        upper_col: "upper_bound"
-    })
-
+    display_df = df_plot.rename(columns={forecast_col: "forecast", lower_col: "lower_bound", upper_col: "upper_bound"})
     st.dataframe(display_df.reset_index(drop=True), use_container_width=True)
-
     csv_data = display_df.to_csv(index=False).encode("utf-8")
     safe_name = selected_industry.lower().replace(" ", "_")
+
     st.download_button(
         label="Download industry forecast as CSV",
         data=csv_data,
@@ -183,7 +156,7 @@ The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_d
         mime="text/csv"
     )
 
-    st.subheader("Business takeaway")
+    st.subheader("Key takeaway")
     st.write(
         "Short-term forecast signals can help highlight which sectors are stable, strengthening, or softening in the near term."
     )
@@ -205,16 +178,10 @@ elif forecast_type == "Region":
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(df_plot["date"], df_plot[forecast_col], marker="o", label=selected_region)
-    ax.fill_between(
-        df_plot["date"],
-        df_plot[lower_col],
-        df_plot[upper_col],
-        alpha=0.2,
-        label="Forecast interval"
-    )
+    ax.fill_between(df_plot["date"], df_plot[lower_col], df_plot[upper_col], alpha=0.2, label="Forecast interval")
     ax.set_title(f"{selected_region} Forecast")
     ax.set_xlabel("Date")
-    ax.set_ylabel("Forecast Index")
+    ax.set_ylabel("Forecast level")
     ax.grid(True, alpha=0.3)
     ax.legend()
     st.pyplot(fig)
@@ -234,30 +201,25 @@ elif forecast_type == "Region":
         current_val = df_plot[forecast_col].iloc[-1]
         previous_val = df_plot[forecast_col].iloc[-2]
         if current_val > previous_val:
-            direction_text = "shows a short-term upward direction"
+            direction_text = "a short-term upward direction"
         elif current_val < previous_val:
-            direction_text = "shows a short-term softening pattern"
+            direction_text = "a short-term softening pattern"
         else:
-            direction_text = "appears broadly stable in the short term"
-        st.info(f"{selected_region} {direction_text} based on the latest forecast periods.")
+            direction_text = "a broadly stable short-term pattern"
+        st.info(f"{selected_region} currently shows {direction_text}, which may matter for local workforce planning and hiring strategy.")
 
     st.write(
         f"""
-This chart shows the projected short-term labour-demand path for **{selected_region}**.
+The latest forecast suggests where short-term hiring demand is heading for **{selected_region}**.
 The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_date.strftime('%b %Y')}**.
 """
     )
 
-    display_df = df_plot.rename(columns={
-        forecast_col: "forecast",
-        lower_col: "lower_bound",
-        upper_col: "upper_bound"
-    })
-
+    display_df = df_plot.rename(columns={forecast_col: "forecast", lower_col: "lower_bound", upper_col: "upper_bound"})
     st.dataframe(display_df.reset_index(drop=True), use_container_width=True)
-
     csv_data = display_df.to_csv(index=False).encode("utf-8")
     safe_name = selected_region.lower().replace(" ", "_")
+
     st.download_button(
         label="Download regional forecast as CSV",
         data=csv_data,
@@ -265,7 +227,7 @@ The latest displayed forecast value is **{latest_forecast:.2f}** for **{latest_d
         mime="text/csv"
     )
 
-    st.subheader("Business takeaway")
+    st.subheader("Key takeaway")
     st.write(
-        "Regional forecast signals show that short-term labour demand may not move in the same way across major labour markets."
+        "Regional forecast signals show that short-term hiring demand may not move in the same way across major labour markets."
     )

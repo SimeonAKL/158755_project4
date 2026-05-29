@@ -10,7 +10,7 @@ st.title("Region Comparison")
 st.write(
     """
 This page compares labour-demand patterns across major regions in New Zealand using the monthly Jobs Online series.
-It allows users to examine regional vacancy trends over time and compare the latest regional labour-demand levels.
+Use it to identify which regional job markets are currently stronger, weaker, or more volatile.
 """
 )
 
@@ -27,13 +27,7 @@ except Exception as e:
     st.stop()
 
 date_col = "date"
-region_cols = [
-    "auckland",
-    "wellington",
-    "north_island_other",
-    "canterbury",
-    "south_island_other"
-]
+region_cols = ["auckland", "wellington", "north_island_other", "canterbury", "south_island_other"]
 
 required_cols = [date_col] + region_cols
 missing_cols = [col for col in required_cols if col not in df.columns]
@@ -61,15 +55,14 @@ if not selected_regions:
 latest_date = df[date_col].dropna().iloc[-1]
 
 st.header("Regional Trend Comparison")
-
 fig1, ax1 = plt.subplots(figsize=(10, 5))
 
 for region in selected_regions:
     ax1.plot(df[date_col], df[region], label=region.replace("_", " ").title())
 
-ax1.set_title("Regional Labour Demand Trends")
+ax1.set_title("Regional Hiring Demand Trends")
 ax1.set_xlabel("Date")
-ax1.set_ylabel("Vacancy Index")
+ax1.set_ylabel("Hiring demand")
 ax1.legend()
 ax1.grid(True, alpha=0.3)
 st.pyplot(fig1)
@@ -77,60 +70,50 @@ st.pyplot(fig1)
 st.write(
     """
 Regional patterns are clearly uneven, which suggests that labour demand is influenced by local economic structure and
-the concentration of different industries. Some regions show stronger or more sustained vacancy growth, while others appear more volatile.
+the concentration of different industries. Some regions show stronger or more sustained hiring growth, while others appear more volatile.
 """
 )
 
-st.header("Latest Regional Labour Demand Snapshot")
-
+st.header("Latest Regional Snapshot")
 latest_row = df.loc[df[date_col] == latest_date, [date_col] + region_cols].copy()
-
 latest_values = latest_row.iloc[0][selected_regions].sort_values(ascending=False)
 
 fig2, ax2 = plt.subplots(figsize=(10, 5))
-ax2.bar(
-    [r.replace("_", " ").title() for r in latest_values.index],
-    latest_values.values
-)
-ax2.set_title(f"Regional Vacancy Index ({latest_date.strftime('%b %Y')})")
+ax2.bar([r.replace("_", " ").title() for r in latest_values.index], latest_values.values)
+ax2.set_title(f"Regional Hiring Demand ({latest_date.strftime('%b %Y')})")
 ax2.set_xlabel("Region")
-ax2.set_ylabel("Vacancy Index")
+ax2.set_ylabel("Hiring demand")
 ax2.grid(True, axis="y", alpha=0.3)
 st.pyplot(fig2)
 
 st.header("Regional Ranking Table")
-
 ranking_df = pd.DataFrame({
     "Region": [r.replace("_", " ").title() for r in latest_values.index],
-    "Latest Vacancy Index": latest_values.values
+    "Latest Hiring Demand": latest_values.values
 })
-
 ranking_df["Rank"] = range(1, len(ranking_df) + 1)
-ranking_df = ranking_df[["Rank", "Region", "Latest Vacancy Index"]]
-
+ranking_df = ranking_df[["Rank", "Region", "Latest Hiring Demand"]]
 st.dataframe(ranking_df, use_container_width=True)
 
 st.header("Summary")
-
 top_region = ranking_df.iloc[0]
 bottom_region = ranking_df.iloc[-1]
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric("Top region", top_region["Region"], f"{top_region['Latest Vacancy Index']:.1f}")
-
+    st.metric("Top region", top_region["Region"], f"{top_region['Latest Hiring Demand']:.1f}")
 with col2:
-    st.metric("Lowest region", bottom_region["Region"], f"{bottom_region['Latest Vacancy Index']:.1f}")
+    st.metric("Lowest region", bottom_region["Region"], f"{bottom_region['Latest Hiring Demand']:.1f}")
 
 st.write(
-    f"In the latest month ({latest_date.strftime('%b %Y')}), the highest vacancy index is observed in **{top_region['Region']}** at **{top_region['Latest Vacancy Index']:.1f}**, while the lowest is observed in **{bottom_region['Region']}** at **{bottom_region['Latest Vacancy Index']:.1f}**."
+    f"In the latest month ({latest_date.strftime('%b %Y')}), the strongest hiring-demand reading among the selected regions is **{top_region['Region']}** at **{top_region['Latest Hiring Demand']:.1f}**, while the weakest is **{bottom_region['Region']}** at **{bottom_region['Latest Hiring Demand']:.1f}**."
 )
 
-st.subheader("Business takeaway")
+st.subheader("Key takeaway")
 st.write(
-    "Regional vacancy patterns are uneven, which suggests that national labour demand does not fully represent local hiring conditions."
+    "Hiring demand is not evenly distributed across New Zealand, so national averages can hide important regional opportunities and risks."
 )
 
 with st.expander("Show regional data preview"):
-    st.dataframe(df[[date_col] + region_cols].head(), use_container_width=True)
+    st.dataframe(df[[date_col] + selected_regions].head(), use_container_width=True)

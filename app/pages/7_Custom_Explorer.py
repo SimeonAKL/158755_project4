@@ -9,8 +9,8 @@ st.title("Custom Explorer")
 
 st.write(
     """
-This page allows users to explore selected labour-demand series interactively.
-Users can choose a region, industry, occupation, or skill-related series and display the selected trend over a chosen time range.
+This page allows users to explore hiring demand across regions, industries, occupations, and skill groups in a flexible way.
+It is designed for users who want to investigate a specific part of the job market rather than follow fixed dashboard views.
 """
 )
 
@@ -59,11 +59,11 @@ industry_options = {
 occupation_options = {
     "Managers": "managers",
     "Professionals": "professionals",
-    "Technicians and Trades Workers": "technicians_and_trades_workers",
-    "Community and Personal Service Workers": "community_and_personal_service_workers",
-    "Clerical and Administrative Workers": "clerical_and_administrative_workers",
+    "Technicians & Trades": "technicians_and_trades_workers",
+    "Community & Personal Services": "community_and_personal_service_workers",
+    "Clerical & Admin": "clerical_and_administrative_workers",
     "Sales Workers": "sales_workers",
-    "Machinery Operators and Drivers": "machinery_operators_and_drivers",
+    "Machinery Operators & Drivers": "machinery_operators_and_drivers",
     "Labourers": "labourers"
 }
 
@@ -77,10 +77,7 @@ skill_options = {
 
 st.header("Explorer Controls")
 
-series_group = st.selectbox(
-    "Select data group",
-    ["Region", "Industry", "Occupation", "Skill Group"]
-)
+series_group = st.selectbox("Select data group", ["Region", "Industry", "Occupation", "Skill Group"])
 
 if series_group == "Region":
     options_dict = region_options
@@ -137,21 +134,19 @@ if normalize:
             plot_df[col] = plot_df[col] / base_value * 100
 
 st.header("Selected Series Trend")
-
 fig, ax = plt.subplots(figsize=(10, 5))
 for label in selected_labels:
     col = options_dict[label]
     ax.plot(plot_df[date_col], plot_df[col], label=label)
 
-ax.set_title(f"{series_group} Labour Demand Trend")
+ax.set_title(f"{series_group} Hiring Demand Trend")
 ax.set_xlabel("Date")
-ax.set_ylabel("Indexed Value" if normalize else "Vacancy Index")
+ax.set_ylabel("Indexed value" if normalize else "Hiring demand")
 ax.legend()
 ax.grid(True, alpha=0.3)
 st.pyplot(fig)
 
 st.header("Summary Metrics")
-
 summary_rows = []
 for label in selected_labels:
     col = options_dict[label]
@@ -184,7 +179,7 @@ st.download_button(
     mime="text/csv"
 )
 
-st.subheader("Business takeaway")
+st.subheader("Key takeaway")
 st.write(
-    "Interactive exploration makes it easier to identify which labour-demand patterns matter most for a specific sector, region, occupation, or skill group."
+    "Interactive exploration makes it easier to identify where hiring demand matters most for a specific sector, region, occupation, or skill group."
 )

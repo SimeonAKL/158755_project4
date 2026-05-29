@@ -9,9 +9,8 @@ st.title("Official Labour Context")
 
 st.write(
     """
-This page provides official labour market context for interpreting the Jobs Online vacancy trend.
-It combines Jobs Online with selected Stats NZ labour market indicators to support a broader understanding
-of labour demand conditions in New Zealand.
+This page places hiring demand in a broader labour market context using official indicators from Stats NZ.
+It helps users judge whether vacancy movement is supported by wider employment and labour market conditions.
 """
 )
 
@@ -50,12 +49,18 @@ df_quarterly[quarterly_date_col] = pd.to_datetime(df_quarterly[quarterly_date_co
 
 jobs_total_col = "totals"
 
+indicator_labels = {
+    "male_paid_employee": "Male employment",
+    "female_paid_employee": "Female employment",
+    "unemployment_rate": "Unemployment rate",
+    "underutilisation_rate": "Underutilisation rate",
+    "filled_jobs": "Filled jobs",
+    "employment_total": "Total employment"
+}
+
 st.header("Indicator Selection")
 
-source_type = st.selectbox(
-    "Select official data source",
-    ["Monthly Official Indicators", "Quarterly Official Indicators"]
-)
+source_type = st.selectbox("Select official data source", ["Monthly Official Indicators", "Quarterly Official Indicators"])
 
 if source_type == "Monthly Official Indicators":
     df_context = df_monthly.copy()
@@ -66,20 +71,51 @@ else:
 
 numeric_cols = get_numeric_columns(df_context)
 
-selected_indicator = st.selectbox(
+preferred_indicators = [
+    "Unemployment rate",
+    "Underutilisation rate",
+    "Male employment",
+    "Female employment",
+    "Filled jobs"
+]
+
+display_to_actual = {}
+for col in numeric_cols:
+    display_name = indicator_labels.get(col, col.replace("_", " ").title())
+    display_to_actual[display_name] = col
+
+preferred_available = [name for name in preferred_indicators if name in display_to_actual]
+other_available = [name for name in display_to_actual.keys() if name not in preferred_available]
+
+selected_display = st.selectbox(
     "Select official labour market indicator",
-    numeric_cols
+    preferred_available if preferred_available else list(display_to_actual.keys())
 )
 
-st.header("Official Labour Market Indicator")
+with st.expander("Show more indicator options"):
+    if other_available:
+        extra_display = st.selectbox(
+            "Other available indicators",
+            ["None"] + other_available,
+            key="extra_indicator_select"
+        )
+        if extra_display != "None":
+            selected_display = extra_display
+    else:
+        st.write("No additional indicators available.")
 
+st.caption(f"Currently viewing: **{selected_display}**")
+
+selected_indicator = display_to_actual[selected_display]
+
+st.header("Official Labour Market Indicator")
 df_indicator = df_context[[context_date_col, selected_indicator]].dropna().sort_values(context_date_col)
 
 fig1, ax1 = plt.subplots(figsize=(10, 5))
 ax1.plot(df_indicator[context_date_col], df_indicator[selected_indicator], marker="o")
-ax1.set_title(f"{selected_indicator} over Time")
+ax1.set_title(f"{selected_display} over Time")
 ax1.set_xlabel("Date")
-ax1.set_ylabel(selected_indicator)
+ax1.set_ylabel(selected_display)
 ax1.grid(True, alpha=0.3)
 st.pyplot(fig1)
 
@@ -88,20 +124,19 @@ latest_date = df_indicator[context_date_col].iloc[-1]
 
 st.write(
     f"""
-The selected official indicator is **{selected_indicator}**. The latest available value in this series is
+The selected official indicator is **{selected_display}**. The latest available value in this series is
 **{latest_value:.2f}** for **{latest_date.strftime('%b %Y')}**.
 """
 )
 
 st.header("Comparison with Jobs Online")
-
 df_jobs_plot = df_jobs[[jobs_date_col, jobs_total_col]].dropna().sort_values(jobs_date_col)
 df_context_plot = df_context[[context_date_col, selected_indicator]].dropna().sort_values(context_date_col)
 
 fig2, ax2 = plt.subplots(figsize=(10, 5))
-ax2.plot(df_jobs_plot[jobs_date_col], df_jobs_plot[jobs_total_col], label="Jobs Online Totals")
-ax2.plot(df_context_plot[context_date_col], df_context_plot[selected_indicator], label=selected_indicator)
-ax2.set_title("Jobs Online vs Official Labour Market Indicator")
+ax2.plot(df_jobs_plot[jobs_date_col], df_jobs_plot[jobs_total_col], label="Jobs Online hiring demand")
+ax2.plot(df_context_plot[context_date_col], df_context_plot[selected_indicator], label=selected_display)
+ax2.set_title("Hiring Demand vs Official Labour Market Indicator")
 ax2.set_xlabel("Date")
 ax2.set_ylabel("Value")
 ax2.grid(True, alpha=0.3)
@@ -110,28 +145,27 @@ st.pyplot(fig2)
 
 st.write(
     """
-The official labour market indicators from Stats NZ provide a broader context for interpreting the Jobs Online series.
-While vacancy data captures changes in online job advertisement activity, official indicators reflect wider labour market
+Official labour market indicators provide broader context for interpreting Jobs Online.
+While vacancy data captures changes in job advertising activity, official indicators reflect wider labour market
 conditions such as employment levels and labour market pressure.
 """
 )
 
 st.header("Latest Available Values")
-
 latest_jobs_value = df_jobs_plot[jobs_total_col].iloc[-1]
 latest_jobs_date = df_jobs_plot[jobs_date_col].iloc[-1]
 
 summary_df = pd.DataFrame({
-    "Series": ["Jobs Online Totals", selected_indicator],
+    "Series": ["Jobs Online hiring demand", selected_display],
     "Latest Value": [latest_jobs_value, latest_value],
     "Latest Date": [latest_jobs_date.strftime("%b %Y"), latest_date.strftime("%b %Y")]
 })
 
 st.dataframe(summary_df, use_container_width=True)
 
-st.subheader("Business takeaway")
+st.subheader("Key takeaway")
 st.write(
-    "Official labour market indicators help validate and contextualise vacancy movement, reducing the risk of interpreting Jobs Online in isolation."
+    "Official labour market indicators help show whether changes in hiring demand are part of a broader market shift or just a short-term movement in job advertising."
 )
 
 with st.expander("Show selected official data preview"):

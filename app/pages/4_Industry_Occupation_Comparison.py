@@ -9,8 +9,8 @@ st.title("Industry Occupation Comparison")
 
 st.write(
     """
-This page compares labour-demand patterns across industries and occupations in New Zealand using the Jobs Online monthly series.
-Users can switch between industry and occupation views, select specific groups, and compare their trends over time.
+This page shows where hiring demand is stronger or weaker across key industries and occupations.
+It is designed to help users quickly spot uneven demand patterns rather than relying on national trends alone.
 """
 )
 
@@ -52,20 +52,17 @@ industry_options = {
 occupation_options = {
     "Managers": "managers",
     "Professionals": "professionals",
-    "Technicians and Trades Workers": "technicians_and_trades_workers",
-    "Community and Personal Service Workers": "community_and_personal_service_workers",
-    "Clerical and Administrative Workers": "clerical_and_administrative_workers",
+    "Technicians & Trades": "technicians_and_trades_workers",
+    "Community & Personal Services": "community_and_personal_service_workers",
+    "Clerical & Admin": "clerical_and_administrative_workers",
     "Sales Workers": "sales_workers",
-    "Machinery Operators and Drivers": "machinery_operators_and_drivers",
+    "Machinery Operators & Drivers": "machinery_operators_and_drivers",
     "Labourers": "labourers"
 }
 
 st.header("Controls")
 
-comparison_type = st.selectbox(
-    "Select comparison type",
-    ["Industry", "Occupation"]
-)
+comparison_type = st.selectbox("Select comparison type", ["Industry", "Occupation"])
 
 if comparison_type == "Industry":
     options_dict = industry_options
@@ -109,16 +106,15 @@ df_plot = df[
 ][[date_col] + selected_cols].copy()
 
 st.header(f"{comparison_type} Trend Comparison")
-
 fig1, ax1 = plt.subplots(figsize=(10, 5))
 
 for label in selected_labels:
     col = options_dict[label]
     ax1.plot(df_plot[date_col], df_plot[col], label=label)
 
-ax1.set_title(f"{comparison_type} Labour Demand Trends")
+ax1.set_title(f"{comparison_type} Hiring Demand Trends")
 ax1.set_xlabel("Date")
-ax1.set_ylabel("Vacancy Index")
+ax1.set_ylabel("Hiring demand")
 ax1.grid(True, alpha=0.3)
 ax1.legend()
 st.pyplot(fig1)
@@ -126,8 +122,8 @@ st.pyplot(fig1)
 if comparison_type == "Industry":
     st.write(
         """
-Industry-level trends show that labour demand has not moved uniformly across sectors. Some industries appear more resilient
-or recover more quickly, while others show weaker or less stable vacancy activity.
+Industry-level trends show that hiring demand has not moved uniformly across sectors. Some industries appear more resilient
+or recover more quickly, while others show weaker or less stable activity.
 """
     )
 else:
@@ -139,7 +135,6 @@ while others show greater fluctuation.
     )
 
 st.header(f"Latest {comparison_type} Snapshot")
-
 latest_row = df_plot.dropna(subset=[date_col]).iloc[-1]
 latest_date = latest_row[date_col]
 
@@ -150,57 +145,45 @@ for label in selected_labels:
 
 latest_df = pd.DataFrame({
     comparison_type: list(latest_values.keys()),
-    "Latest Vacancy Index": list(latest_values.values())
-}).sort_values("Latest Vacancy Index", ascending=False)
+    "Latest Hiring Demand": list(latest_values.values())
+}).sort_values("Latest Hiring Demand", ascending=False)
 
 fig2, ax2 = plt.subplots(figsize=(10, 5))
-ax2.bar(latest_df[comparison_type], latest_df["Latest Vacancy Index"])
-ax2.set_title(f"Latest {comparison_type} Labour Demand Snapshot ({latest_date.strftime('%b %Y')})")
+ax2.bar(latest_df[comparison_type], latest_df["Latest Hiring Demand"])
+ax2.set_title(f"Latest {comparison_type} Hiring Snapshot ({latest_date.strftime('%b %Y')})")
 ax2.set_xlabel(comparison_type)
-ax2.set_ylabel("Vacancy Index")
+ax2.set_ylabel("Hiring demand")
 ax2.grid(True, axis="y", alpha=0.3)
 st.pyplot(fig2)
 
 st.header(f"{comparison_type} Ranking Table")
-
 latest_df = latest_df.reset_index(drop=True)
 latest_df["Rank"] = latest_df.index + 1
-latest_df = latest_df[["Rank", comparison_type, "Latest Vacancy Index"]]
-
+latest_df = latest_df[["Rank", comparison_type, "Latest Hiring Demand"]]
 st.dataframe(latest_df, use_container_width=True)
 
 st.header("Summary")
-
 top_group = latest_df.iloc[0]
 bottom_group = latest_df.iloc[-1]
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(
-        f"Top {comparison_type.lower()}",
-        top_group[comparison_type],
-        f"{top_group['Latest Vacancy Index']:.1f}"
-    )
-
+    st.metric(f"Top {comparison_type.lower()}", top_group[comparison_type], f"{top_group['Latest Hiring Demand']:.1f}")
 with col2:
-    st.metric(
-        f"Lowest {comparison_type.lower()}",
-        bottom_group[comparison_type],
-        f"{bottom_group['Latest Vacancy Index']:.1f}"
-    )
+    st.metric(f"Lowest {comparison_type.lower()}", bottom_group[comparison_type], f"{bottom_group['Latest Hiring Demand']:.1f}")
 
 st.write(
     f"""
-In the latest available month (**{latest_date.strftime('%b %Y')}**), the highest labour-demand level among the selected
-{comparison_type.lower()} groups is observed in **{top_group[comparison_type]}** at **{top_group['Latest Vacancy Index']:.1f}**,
-while the lowest is observed in **{bottom_group[comparison_type]}** at **{bottom_group['Latest Vacancy Index']:.1f}**.
+In the latest available month (**{latest_date.strftime('%b %Y')}**), the highest hiring-demand level among the selected
+{comparison_type.lower()} groups is observed in **{top_group[comparison_type]}** at **{top_group['Latest Hiring Demand']:.1f}**,
+while the lowest is observed in **{bottom_group[comparison_type]}** at **{bottom_group['Latest Hiring Demand']:.1f}**.
 """
 )
 
-st.subheader("Business takeaway")
+st.subheader("Key takeaway")
 st.write(
-    "Labour demand is not moving uniformly across sectors or occupations, so decision-making should consider subgroup variation rather than national averages alone."
+    "Hiring demand is moving unevenly across sectors and occupations, so better decisions come from looking at where demand is actually concentrated rather than relying on national averages alone."
 )
 
 with st.expander("Show filtered data preview"):
