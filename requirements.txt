@@ -4,3 +4,9 @@ numpy
 matplotlib
 scikit-learn
 prophet
+plotly
+streamlit-extras
+streamlit-card
+pillow
+kaleido
+colour
