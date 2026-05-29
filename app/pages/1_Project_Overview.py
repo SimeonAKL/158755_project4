@@ -2,140 +2,213 @@ import streamlit as st
 
 st.set_page_config(page_title="Project Overview", layout="wide")
 
+from utils.theme import inject_css, section_header, info_card, takeaway_card, PALETTE
+
+inject_css()
+
+# ── Page title ────────────────────────────────────────────────────────────────
 st.title("Project Overview")
-
 st.write(
-    """
-This dashboard explores short-term labour demand trends in New Zealand using Jobs Online data and official labour market data from Stats NZ.
-It focuses on how online hiring demand has changed over time, how patterns differ across regions, industries, and occupations,
-and whether recent demand trends can support short-term forecasting over the next 3–6 months.
-"""
+    "This dashboard explores short-term labour demand trends in New Zealand using "
+    "Jobs Online data and official labour market indicators from Stats NZ. It covers "
+    "how online hiring demand has changed over time, how patterns differ across regions, "
+    "industries, and occupations, and whether recent demand trends can support "
+    "short-term forecasting over the next 3–6 months."
 )
 
-st.write(
-    """
-This dashboard is designed to present the main project findings in an interactive format, allowing users to explore national trends, subgroup differences, forecast outputs, and official labour market context.
-"""
-)
-
-st.header("Project Background")
+# ── Background ────────────────────────────────────────────────────────────────
+section_header("Project Background")
 
 st.write(
-    """
-Understanding labour demand is important for interpreting recent changes in the New Zealand job market.
-Changes in online job advertisements can reflect shifts in hiring activity, employer confidence, and sector-level demand.
-In recent years, labour demand in New Zealand has not moved evenly over time. Periods such as the global financial crisis,
-COVID-19 disruption, and the post-pandemic recovery have all been associated with noticeable changes in hiring activity.
-For this reason, Jobs Online data provides a useful way to examine short-term labour market movement.
-"""
+    "Changes in online job advertisements reflect shifts in hiring activity, employer "
+    "confidence, and sector-level demand. New Zealand labour demand has not moved evenly "
+    "over time — periods such as the global financial crisis, COVID-19 disruption, and "
+    "the post-pandemic recovery all produced noticeable changes in hiring activity. "
+    "Jobs Online data provides a timely, high-frequency lens for tracking these movements."
 )
 
 st.write(
-    """
-This project focuses on Jobs Online, a regular New Zealand data source that tracks changes in online job advertisements.
-Jobs Online is useful because it provides timely labour demand information and includes breakdowns by region, industry,
-occupation, and skill group. These features make it suitable for both trend analysis and short-term forecasting.
-However, vacancy data alone does not provide a complete picture of the labour market. To strengthen interpretation,
-this project also uses official labour market data from Stats NZ, including employment indicators, unemployment,
-and underutilisation-related measures. These datasets help place hiring-demand trends within a broader labour market context
-and support interpretation of the forecast results.
-"""
+    "This project uses the Jobs Online series as its primary data source, with "
+    "breakdowns by region, industry, occupation, and skill group. Official Stats NZ "
+    "labour market data is incorporated to place vacancy trends in a broader context "
+    "and to support interpretation of forecast results."
 )
 
-st.header("Main Objectives")
-
-st.markdown(
-    """
-- analyse overall online hiring-demand trends in New Zealand
-- compare labour-demand patterns across regions, industries, and occupations
-- develop short-term forecasting models for labour demand over the next 3–6 months
-- use official labour market data to strengthen interpretation and validation of the forecast results
-"""
-)
-
-st.header("Research Questions")
-
-st.markdown(
-    """
-1. **How has overall online labour demand changed over time in New Zealand?**
-2. **How do labour-demand patterns differ across regions, industries, and occupations?**
-3. **Can Jobs Online data be used to forecast labour demand over the next 3–6 months?**
-4. **How can official labour-market data strengthen the interpretation and validation of the forecast results?**
-"""
-)
-
-st.write(
-    """
-These questions guide the structure of the project. The first two questions are addressed through exploratory analysis
-of overall and subgroup labour-demand patterns. The third question is addressed through short-term forecasting at the
-national, industry, and regional levels. The fourth question is addressed by using official labour market indicators
-from Stats NZ to support interpretation and validation of the vacancy-based results.
-"""
-)
-
-st.header("Data Sources")
+# ── Objectives ────────────────────────────────────────────────────────────────
+section_header("Objectives")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("MBIE Jobs Online")
-    st.write(
-        """
-The MBIE Jobs Online datasets are the main source for this project. They provide information on changes in online job
-advertisements over time and include breakdowns by region, industry, occupation, and skill group. In this project,
-the monthly Jobs Online series is used as the main dataset for trend analysis and short-term forecasting, while the
-subgroup Jobs Online files are used to compare labour-demand patterns across different categories.
-"""
+    info_card(
+        "Trend Analysis",
+        "Examine how overall online hiring demand in New Zealand has changed over time, "
+        "identifying key turning points and structural shifts.",
+        "📈"
+    )
+    info_card(
+        "Forecasting",
+        "Develop short-term models to project labour demand over the next 3–6 months "
+        "at the national, industry, and regional levels.",
+        "🔭"
     )
 
 with col2:
-    st.subheader("Stats NZ Labour Market Data")
-    st.write(
-        """
-The Stats NZ datasets are used to provide official labour market context. These include employment indicators by
-industry and region, as well as unemployment and underutilisation rates. Unlike Jobs Online, which reflects vacancy
-activity, Stats NZ data captures broader labour market conditions. This makes it useful for interpreting and validating
-the forecast results rather than replacing the vacancy-based analysis.
-"""
+    info_card(
+        "Subgroup Comparisons",
+        "Compare demand patterns across regions, industries, occupations, and skill "
+        "groups to identify where the market is diverging.",
+        "🗺️"
+    )
+    info_card(
+        "Official Context",
+        "Use Stats NZ employment and labour force indicators to strengthen interpretation "
+        "and validate the vacancy-based forecast results.",
+        "🏛️"
+    )
+
+# ── Research questions ────────────────────────────────────────────────────────
+section_header("Research Questions")
+
+questions = [
+    ("How has overall online labour demand changed over time in New Zealand?",
+     "Addressed through national trend analysis using the full Jobs Online monthly series."),
+    ("How do demand patterns differ across regions, industries, and occupations?",
+     "Addressed through subgroup comparison and cross-sectional breakdowns."),
+    ("Can Jobs Online data forecast labour demand over the next 3–6 months?",
+     "Addressed through short-term forecasting models at national, industry, and regional levels."),
+    ("How can official data strengthen forecast interpretation and validation?",
+     "Addressed by incorporating Stats NZ employment and labour force indicators."),
+]
+
+for i, (q, a) in enumerate(questions, 1):
+    st.markdown(
+        f"""
+        <div style="
+            background: {PALETTE['white']};
+            border: 1px solid {PALETTE['border']};
+            border-left: 4px solid {PALETTE['sky_blue']};
+            border-radius: 8px;
+            padding: 0.9rem 1.25rem;
+            margin-bottom: 0.6rem;
+        ">
+            <div style="
+                font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+                letter-spacing: 0.08em; color: {PALETTE['sky_blue']}; margin-bottom: 0.3rem;
+            ">Q{i}</div>
+            <div style="font-size: 0.92rem; font-weight: 600;
+                        color: {PALETTE['text_primary']}; margin-bottom: 0.25rem;">{q}</div>
+            <div style="font-size: 0.84rem; color: {PALETTE['text_secondary']};">{a}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# ── Data sources ──────────────────────────────────────────────────────────────
+section_header("Data Sources")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    info_card(
+        "MBIE Jobs Online",
+        "The primary data source for this project. Provides monthly series on changes "
+        "in online job advertisements, with breakdowns by region, industry, occupation, "
+        "and skill group. Used for both trend analysis and short-term forecasting.",
+        "📋"
+    )
+
+with col2:
+    info_card(
+        "Stats NZ Labour Market Data",
+        "Official employment indicators by industry and region, plus unemployment and "
+        "underutilisation rates. Used to provide broader market context and validate "
+        "the vacancy-based results — not as a substitute for the Jobs Online signal.",
+        "🏛️"
     )
 
 st.write(
-    """
-Together, these two sources provide a more balanced view of labour demand in New Zealand. Jobs Online supplies the
-main forecasting signal, while Stats NZ helps place those patterns in a wider labour market context and supports
-interpretation of the forecast results.
-"""
+    "Together, these two sources provide a more complete picture of hiring conditions. "
+    "Jobs Online supplies the primary forecasting signal; Stats NZ helps situate those "
+    "patterns within a wider labour market context."
 )
 
-st.header("Workflow Overview")
+# ── Workflow ──────────────────────────────────────────────────────────────────
+section_header("Analytical Workflow")
 
-st.markdown(
-    """
-**1. Data acquisition and cleaning**
-Raw Jobs Online and Stats NZ datasets are collected, cleaned, and standardised.
+steps = [
+    ("1", "Data Acquisition & Cleaning",
+     "Raw Jobs Online and Stats NZ datasets are collected, cleaned, and standardised for analysis."),
+    ("2", "Integration & Preparation",
+     "Cleaned datasets are reshaped and combined into integrated tables for consistent analysis."),
+    ("3", "Exploratory Analysis",
+     "Labour demand trends are explored across time, regions, industries, occupations, and skill groups."),
+    ("4", "Forecasting & Interpretation",
+     "Short-term models are applied and results are interpreted together with official labour market indicators."),
+]
 
-**2. Data integration and preparation**
-The cleaned datasets are reshaped and combined into integrated tables for analysis.
+cols = st.columns(4)
+for col, (num, title, desc) in zip(cols, steps):
+    with col:
+        st.markdown(
+            f"""
+            <div style="
+                background: {PALETTE['white']};
+                border: 1px solid {PALETTE['border']};
+                border-radius: 10px;
+                padding: 1.25rem;
+                text-align: center;
+                height: 100%;
+            ">
+                <div style="
+                    width: 36px; height: 36px; border-radius: 50%;
+                    background: {PALETTE['ocean_blue']};
+                    color: white; font-size: 1rem; font-weight: 700;
+                    display: flex; align-items: center; justify-content: center;
+                    margin: 0 auto 0.75rem auto;
+                ">{num}</div>
+                <div style="font-size: 0.82rem; font-weight: 700; color: {PALETTE['text_primary']};
+                            margin-bottom: 0.4rem;">{title}</div>
+                <div style="font-size: 0.8rem; color: {PALETTE['text_secondary']};
+                            line-height: 1.5;">{desc}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-**3. Exploratory data analysis**
-Labour demand trends are explored across time, regions, industries, occupations, and skills.
+# ── Navigation guide ──────────────────────────────────────────────────────────
+section_header("Dashboard Navigation Guide")
 
-**4. Forecasting and interpretation**
-Short-term forecasting models are applied, and the results are interpreted together with official labour market indicators.
-"""
-)
+nav_items = [
+    ("NZ Labour Demand Trends",       "National trend in hiring demand over time with skill-group breakdown."),
+    ("Region Comparison",             "Hiring demand across major NZ regions — identify where markets are stronger or weaker."),
+    ("Industry & Occupation",         "Sector and occupation-level demand patterns — spot where hiring is concentrated."),
+    ("Forecast Explorer",             "Short-term forecasts at national, industry, and regional levels with confidence intervals."),
+    ("Official Labour Context",       "Stats NZ indicators alongside Jobs Online — validate demand signals with official data."),
+    ("Custom Explorer",               "Flexible, self-directed exploration of any region, industry, occupation, or skill group."),
+]
 
-st.header("How to Use This Dashboard")
+for page, desc in nav_items:
+    st.markdown(
+        f"""
+        <div style="
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid {PALETTE['border']};
+        ">
+            <span style="
+                font-size: 0.78rem; font-weight: 700; color: {PALETTE['ocean_blue']};
+                min-width: 220px;
+            ">{page}</span>
+            <span style="font-size: 0.84rem; color: {PALETTE['text_secondary']};">{desc}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-st.write(
-    """
-Use the navigation menu on the left to move through the main parts of the project:
-
-- **NZ Labour Demand Trends** shows the overall trend in hiring demand over time
-- **Region Comparison** compares hiring-demand patterns across different regions
-- **Industry Occupation Comparison** explores subgroup differences
-- **Forecast Explorer** presents short-term forecasting results in a more interactive form
-- **Official Labour Context** provides supporting interpretation using Stats NZ data
-- **Custom Explorer** allows users to explore selected labour-demand series by group and time range
-"""
+takeaway_card(
+    "This project treats hiring demand as a real-time economic signal. "
+    "By combining a high-frequency vacancy measure with official labour market data, "
+    "it aims to give decision-makers a clearer, faster view of where the New Zealand "
+    "labour market is heading."
 )

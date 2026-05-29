@@ -1,19 +1,27 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import os
 
 st.set_page_config(page_title="Region Comparison", layout="wide")
 
-st.title("Region Comparison")
-
-st.write(
-    """
-This page compares labour-demand patterns across major regions in New Zealand using the monthly Jobs Online series.
-Use it to identify which regional job markets are currently stronger, weaker, or more volatile.
-"""
+from utils.theme import (
+    inject_css, section_header, takeaway_card,
+    plotly_layout, line_trace, bar_trace,
+    CHART_COLORS, PALETTE,
 )
 
+inject_css()
+
+# ── Title ─────────────────────────────────────────────────────────────────────
+st.title("Region Comparison")
+st.write(
+    "Hiring demand is not distributed evenly across New Zealand. This page compares "
+    "monthly Jobs Online activity across major regional labour markets — helping "
+    "identify which regions are currently stronger, weaker, or more volatile."
+)
+
+# ── Data ──────────────────────────────────────────────────────────────────────
 DATA_PATH = os.path.join("data", "integrated", "jobs_online_monthly.csv")
 
 @st.cache_data
@@ -26,27 +34,37 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-date_col = "date"
+date_col    = "date"
 region_cols = ["auckland", "wellington", "north_island_other", "canterbury", "south_island_other"]
+REGION_LABELS = {
+    "auckland":            "Auckland",
+    "wellington":          "Wellington",
+    "north_island_other":  "North Island Other",
+    "canterbury":          "Canterbury",
+    "south_island_other":  "South Island Other",
+}
 
 required_cols = [date_col] + region_cols
-missing_cols = [col for col in required_cols if col not in df.columns]
-
+missing_cols  = [c for c in required_cols if c not in df.columns]
 if missing_cols:
     st.error(f"Missing required columns: {missing_cols}")
-    st.write("Available columns:", list(df.columns))
     st.stop()
 
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 df = df.sort_values(date_col).reset_index(drop=True)
 
-st.header("Controls")
+# ── Controls ──────────────────────────────────────────────────────────────────
+section_header("Chart Controls")
 
-selected_regions = st.multiselect(
-    "Select regions to compare",
-    options=region_cols,
-    default=["auckland", "wellington", "canterbury"]
-)
+with st.container():
+    st.markdown('<div class="nz-controls-panel">', unsafe_allow_html=True)
+    selected_regions = st.multiselect(
+        "Select regions to compare",
+        options=region_cols,
+        default=["auckland", "wellington", "canterbury"],
+        format_func=lambda x: REGION_LABELS.get(x, x),
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if not selected_regions:
     st.warning("Please select at least one region.")
@@ -54,66 +72,95 @@ if not selected_regions:
 
 latest_date = df[date_col].dropna().iloc[-1]
 
-st.header("Regional Trend Comparison")
-fig1, ax1 = plt.subplots(figsize=(10, 5))
+# ── Trend comparison ──────────────────────────────────────────────────────────
+section_header("Regional Trend Comparison", "monthly hiring demand index by region")
 
-for region in selected_regions:
-    ax1.plot(df[date_col], df[region], label=region.replace("_", " ").title())
-
-ax1.set_title("Regional Hiring Demand Trends")
-ax1.set_xlabel("Date")
-ax1.set_ylabel("Hiring demand")
-ax1.legend()
-ax1.grid(True, alpha=0.3)
-st.pyplot(fig1)
+fig1 = go.Figure()
+for i, region in enumerate(selected_regions):
+    fig1.add_trace(
+        line_trace(
+            df[date_col], df[region],
+            name=REGION_LABELS.get(region, region),
+            color=CHART_COLORS[i % len(CHART_COLORS)],
+            width=2,
+        )
+    )
+fig1.update_layout(**plotly_layout(
+    "Regional Hiring Demand Trends",
+    x_label="", y_label="Hiring Demand Index"
+))
+st.plotly_chart(fig1, use_container_width=True)
 
 st.write(
-    """
-Regional patterns are clearly uneven, which suggests that labour demand is influenced by local economic structure and
-the concentration of different industries. Some regions show stronger or more sustained hiring growth, while others appear more volatile.
-"""
+    "Regional patterns are clearly uneven, reflecting the local economic structure "
+    "and sector composition of each region. Some labour markets show stronger or "
+    "more sustained hiring activity; others are more sensitive to economic cycles."
 )
 
-st.header("Latest Regional Snapshot")
-latest_row = df.loc[df[date_col] == latest_date, [date_col] + region_cols].copy()
+# ── Latest snapshot bar ───────────────────────────────────────────────────────
+section_header("Current Regional Standing",
+               f"latest available reading — {latest_date.strftime('%b %Y')}")
+
+latest_row    = df.loc[df[date_col] == latest_date, [date_col] + region_cols].copy()
 latest_values = latest_row.iloc[0][selected_regions].sort_values(ascending=False)
 
-fig2, ax2 = plt.subplots(figsize=(10, 5))
-ax2.bar([r.replace("_", " ").title() for r in latest_values.index], latest_values.values)
-ax2.set_title(f"Regional Hiring Demand ({latest_date.strftime('%b %Y')})")
-ax2.set_xlabel("Region")
-ax2.set_ylabel("Hiring demand")
-ax2.grid(True, axis="y", alpha=0.3)
-st.pyplot(fig2)
+bar_colors = [CHART_COLORS[i % len(CHART_COLORS)] for i in range(len(latest_values))]
 
-st.header("Regional Ranking Table")
+fig2 = go.Figure()
+fig2.add_trace(go.Bar(
+    x=[REGION_LABELS.get(r, r) for r in latest_values.index],
+    y=latest_values.values,
+    marker=dict(color=bar_colors, line=dict(width=0)),
+    hovertemplate="<b>%{x}</b>: %{y:.1f}<extra></extra>",
+))
+fig2.update_layout(**plotly_layout(
+    f"Regional Hiring Demand — {latest_date.strftime('%b %Y')}",
+    x_label="Region", y_label="Hiring Demand Index",
+    legend=False,
+))
+st.plotly_chart(fig2, use_container_width=True)
+
+# ── Ranking table ─────────────────────────────────────────────────────────────
+section_header("Regional Rankings")
+
 ranking_df = pd.DataFrame({
-    "Region": [r.replace("_", " ").title() for r in latest_values.index],
-    "Latest Hiring Demand": latest_values.values
+    "Rank":                 range(1, len(latest_values) + 1),
+    "Region":              [REGION_LABELS.get(r, r) for r in latest_values.index],
+    "Hiring Demand Index": latest_values.values.round(1),
 })
-ranking_df["Rank"] = range(1, len(ranking_df) + 1)
-ranking_df = ranking_df[["Rank", "Region", "Latest Hiring Demand"]]
-st.dataframe(ranking_df, use_container_width=True)
+st.dataframe(ranking_df.set_index("Rank"), use_container_width=True)
 
-st.header("Summary")
-top_region = ranking_df.iloc[0]
+# ── Summary metrics ───────────────────────────────────────────────────────────
+section_header("Period Summary")
+
+top_region    = ranking_df.iloc[0]
 bottom_region = ranking_df.iloc[-1]
 
-col1, col2 = st.columns(2)
-
+col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Top region", top_region["Region"], f"{top_region['Latest Hiring Demand']:.1f}")
+    st.metric("Strongest Region", top_region["Region"],
+              f"{top_region['Hiring Demand Index']:.1f}")
 with col2:
-    st.metric("Lowest region", bottom_region["Region"], f"{bottom_region['Latest Hiring Demand']:.1f}")
+    st.metric("Weakest Region", bottom_region["Region"],
+              f"{bottom_region['Hiring Demand Index']:.1f}")
+with col3:
+    spread = top_region["Hiring Demand Index"] - bottom_region["Hiring Demand Index"]
+    st.metric("Demand Spread (top vs bottom)", f"{spread:.1f}")
 
 st.write(
-    f"In the latest month ({latest_date.strftime('%b %Y')}), the strongest hiring-demand reading among the selected regions is **{top_region['Region']}** at **{top_region['Latest Hiring Demand']:.1f}**, while the weakest is **{bottom_region['Region']}** at **{bottom_region['Latest Hiring Demand']:.1f}**."
+    f"In {latest_date.strftime('%b %Y')}, **{top_region['Region']}** leads with a hiring "
+    f"demand index of **{top_region['Hiring Demand Index']:.1f}**, while "
+    f"**{bottom_region['Region']}** records the lowest at "
+    f"**{bottom_region['Hiring Demand Index']:.1f}**."
 )
 
-st.subheader("Key takeaway")
-st.write(
-    "Hiring demand is not evenly distributed across New Zealand, so national averages can hide important regional opportunities and risks."
+takeaway_card(
+    "Hiring demand is not evenly distributed across New Zealand. National averages "
+    "can hide important regional opportunities and risks — making regional-level "
+    "monitoring essential for geographically informed workforce decisions."
 )
 
-with st.expander("Show regional data preview"):
-    st.dataframe(df[[date_col] + selected_regions].head(), use_container_width=True)
+with st.expander("View underlying regional data"):
+    st.dataframe(df[[date_col] + selected_regions].rename(
+        columns={**{date_col: "Date"}, **REGION_LABELS}
+    ).head(20), use_container_width=True)
