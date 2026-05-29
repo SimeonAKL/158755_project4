@@ -14,9 +14,6 @@ Users can switch between industry and occupation views, select specific groups, 
 """
 )
 
-# ============================================================
-# Load data
-# ============================================================
 DATA_PATH = os.path.join("data", "integrated", "jobs_online_monthly.csv")
 
 @st.cache_data
@@ -29,9 +26,6 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ============================================================
-# Required date column
-# ============================================================
 date_col = "date"
 
 if date_col not in df.columns:
@@ -42,9 +36,6 @@ if date_col not in df.columns:
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 df = df.sort_values(date_col).reset_index(drop=True)
 
-# ============================================================
-# Column groups
-# ============================================================
 industry_options = {
     "Business Services": "business_services",
     "Construction": "construction",
@@ -69,10 +60,7 @@ occupation_options = {
     "Labourers": "labourers"
 }
 
-# ============================================================
-# Controls
-# ============================================================
-st.header("Comparison Controls")
+st.header("Controls")
 
 comparison_type = st.selectbox(
     "Select comparison type",
@@ -113,10 +101,6 @@ date_range = st.slider(
 )
 
 start_date, end_date = date_range
-
-# ============================================================
-# Filter data
-# ============================================================
 selected_cols = [options_dict[label] for label in selected_labels]
 
 df_plot = df[
@@ -124,9 +108,6 @@ df_plot = df[
     (df[date_col].dt.date <= end_date)
 ][[date_col] + selected_cols].copy()
 
-# ============================================================
-# Trend chart
-# ============================================================
 st.header(f"{comparison_type} Trend Comparison")
 
 fig1, ax1 = plt.subplots(figsize=(10, 5))
@@ -140,29 +121,23 @@ ax1.set_xlabel("Date")
 ax1.set_ylabel("Vacancy Index")
 ax1.grid(True, alpha=0.3)
 ax1.legend()
-
 st.pyplot(fig1)
 
 if comparison_type == "Industry":
     st.write(
         """
 Industry-level trends show that labour demand has not moved uniformly across sectors. Some industries appear more resilient
-or recover more quickly, while others show weaker or less stable vacancy activity. This is important for interpretation because
-it suggests that changes in aggregate labour demand are partly driven by uneven sectoral movement rather than a single shared pattern across the economy.
+or recover more quickly, while others show weaker or less stable vacancy activity.
 """
     )
 else:
     st.write(
         """
-The occupation analysis shows that labour demand differs across job groups, not only across industries or regions.
-Some occupation groups maintain stronger demand over time, while others show greater fluctuation. This supports the view
-that labour demand should be interpreted at multiple levels, since national trends can hide meaningful subgroup variation.
+The occupation analysis shows that labour demand differs across job groups. Some occupation groups maintain stronger demand over time,
+while others show greater fluctuation.
 """
     )
 
-# ============================================================
-# Latest snapshot
-# ============================================================
 st.header(f"Latest {comparison_type} Snapshot")
 
 latest_row = df_plot.dropna(subset=[date_col]).iloc[-1]
@@ -184,12 +159,8 @@ ax2.set_title(f"Latest {comparison_type} Labour Demand Snapshot ({latest_date.st
 ax2.set_xlabel(comparison_type)
 ax2.set_ylabel("Vacancy Index")
 ax2.grid(True, axis="y", alpha=0.3)
-
 st.pyplot(fig2)
 
-# ============================================================
-# Ranking table
-# ============================================================
 st.header(f"{comparison_type} Ranking Table")
 
 latest_df = latest_df.reset_index(drop=True)
@@ -198,9 +169,6 @@ latest_df = latest_df[["Rank", comparison_type, "Latest Vacancy Index"]]
 
 st.dataframe(latest_df, use_container_width=True)
 
-# ============================================================
-# Summary
-# ============================================================
 st.header("Summary")
 
 top_group = latest_df.iloc[0]
@@ -230,9 +198,11 @@ while the lowest is observed in **{bottom_group[comparison_type]}** at **{bottom
 """
 )
 
-# ============================================================
-# Optional data preview
-# ============================================================
+st.subheader("Business takeaway")
+st.write(
+    "Labour demand is not moving uniformly across sectors or occupations, so decision-making should consider subgroup variation rather than national averages alone."
+)
+
 with st.expander("Show filtered data preview"):
     preview_df = df_plot.rename(columns={options_dict[label]: label for label in selected_labels})
     st.dataframe(preview_df.head(), use_container_width=True)

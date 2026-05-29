@@ -14,9 +14,6 @@ Users can choose a region, industry, occupation, or skill-related series and dis
 """
 )
 
-# ============================================================
-# Load data
-# ============================================================
 DATA_PATH = os.path.join("data", "integrated", "jobs_online_monthly.csv")
 
 @st.cache_data
@@ -29,9 +26,6 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ============================================================
-# Required date column
-# ============================================================
 date_col = "date"
 if date_col not in df.columns:
     st.error("The required 'date' column was not found in jobs_online_monthly.csv")
@@ -41,9 +35,6 @@ if date_col not in df.columns:
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 df = df.sort_values(date_col).reset_index(drop=True)
 
-# ============================================================
-# Groups of selectable series
-# ============================================================
 region_options = {
     "Auckland": "auckland",
     "Wellington": "wellington",
@@ -84,25 +75,6 @@ skill_options = {
     "Unskilled": "unskilled"
 }
 
-# ============================================================
-# Check available columns
-# ============================================================
-all_needed = (
-    list(region_options.values()) +
-    list(industry_options.values()) +
-    list(occupation_options.values()) +
-    list(skill_options.values())
-)
-
-missing_cols = [c for c in all_needed if c not in df.columns]
-
-if missing_cols:
-    st.warning("Some expected columns are missing from the dataset.")
-    st.write("Missing columns:", missing_cols)
-
-# ============================================================
-# Controls
-# ============================================================
 st.header("Explorer Controls")
 
 series_group = st.selectbox(
@@ -121,16 +93,15 @@ else:
 
 available_labels = [label for label, col in options_dict.items() if col in df.columns]
 
-if not available_labels:
-    st.error(f"No available columns found for {series_group}.")
-    st.stop()
-
-selected_label = st.selectbox(
-    f"Select {series_group.lower()}",
-    available_labels
+selected_labels = st.multiselect(
+    f"Select {series_group.lower()} series",
+    available_labels,
+    default=available_labels[:2] if len(available_labels) >= 2 else available_labels
 )
 
-selected_col = options_dict[selected_label]
+if not selected_labels:
+    st.warning("Please select at least one series.")
+    st.stop()
 
 min_date = df[date_col].min().date()
 max_date = df[date_col].max().date()
@@ -142,84 +113,78 @@ date_range = st.slider(
     value=(min_date, max_date)
 )
 
-# ============================================================
-# Filter data
-# ============================================================
+normalize = st.checkbox("Show indexed comparison (base = 100)")
+
 start_date, end_date = date_range
+
+selected_cols = [options_dict[label] for label in selected_labels]
 
 df_plot = df[
     (df[date_col].dt.date >= start_date) &
     (df[date_col].dt.date <= end_date)
-][[date_col, selected_col]].dropna()
+][[date_col] + selected_cols].dropna()
 
 if df_plot.empty:
     st.warning("No data available for the selected combination.")
     st.stop()
 
-# ============================================================
-# Plot
-# ============================================================
+plot_df = df_plot.copy()
+
+if normalize:
+    for col in selected_cols:
+        base_value = plot_df[col].iloc[0]
+        if base_value != 0:
+            plot_df[col] = plot_df[col] / base_value * 100
+
 st.header("Selected Series Trend")
 
 fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(df_plot[date_col], df_plot[selected_col], marker="o")
-ax.set_title(f"{selected_label} Labour Demand Trend")
-ax.set_xlabel("Date")
-ax.set_ylabel("Vacancy Index")
-ax.grid(True, alpha=0.3)
+for label in selected_labels:
+    col = options_dict[label]
+    ax.plot(plot_df[date_col], plot_df[col], label=label)
 
+ax.set_title(f"{series_group} Labour Demand Trend")
+ax.set_xlabel("Date")
+ax.set_ylabel("Indexed Value" if normalize else "Vacancy Index")
+ax.legend()
+ax.grid(True, alpha=0.3)
 st.pyplot(fig)
 
-# ============================================================
-# Summary metrics
-# ============================================================
 st.header("Summary Metrics")
 
-latest_value = df_plot[selected_col].iloc[-1]
-latest_date = df_plot[date_col].iloc[-1]
-peak_value = df_plot[selected_col].max()
-trough_value = df_plot[selected_col].min()
-avg_value = df_plot[selected_col].mean()
+summary_rows = []
+for label in selected_labels:
+    col = options_dict[label]
+    summary_rows.append({
+        "Series": label,
+        "Latest value": df_plot[col].iloc[-1],
+        "Average value": df_plot[col].mean(),
+        "Peak value": df_plot[col].max(),
+        "Lowest value": df_plot[col].min()
+    })
 
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.metric("Latest value", f"{latest_value:.1f}")
-
-with col2:
-    st.metric("Average value", f"{avg_value:.1f}")
-
-with col3:
-    st.metric("Peak value", f"{peak_value:.1f}")
-
-with col4:
-    st.metric("Lowest value", f"{trough_value:.1f}")
+summary_df = pd.DataFrame(summary_rows)
+st.dataframe(summary_df, use_container_width=True)
 
 st.write(
-    f"""
-The selected series is **{selected_label}** under the **{series_group}** group.
-The latest observed value is **{latest_value:.1f}** in **{latest_date.strftime('%b %Y')}**.
+    """
 This interactive view allows users to inspect how different labour-demand series change over time rather than relying only on fixed charts.
 """
 )
 
-# ============================================================
-# Table view
-# ============================================================
 st.header("Filtered Data Table")
-
-display_df = df_plot.rename(columns={selected_col: "value"}).reset_index(drop=True)
+display_df = df_plot.rename(columns={options_dict[label]: label for label in selected_labels}).reset_index(drop=True)
 st.dataframe(display_df, use_container_width=True)
 
-# ============================================================
-# Download button
-# ============================================================
 csv_data = display_df.to_csv(index=False).encode("utf-8")
-safe_name = selected_label.lower().replace(" ", "_").replace("-", "_")
-
 st.download_button(
     label="Download filtered data as CSV",
     data=csv_data,
-    file_name=f"{safe_name}_custom_explorer.csv",
+    file_name="custom_explorer_selection.csv",
     mime="text/csv"
+)
+
+st.subheader("Business takeaway")
+st.write(
+    "Interactive exploration makes it easier to identify which labour-demand patterns matter most for a specific sector, region, occupation, or skill group."
 )

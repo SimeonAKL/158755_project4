@@ -3,20 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-st.set_page_config(page_title="Region Comparison", layout="wide")
+st.set_page_config(page_title="NZ Labour Demand Trends", layout="wide")
 
-st.title("Region Comparison")
+st.title("NZ Labour Demand Trends")
 
 st.write(
     """
-This page compares labour-demand patterns across major regions in New Zealand using the monthly Jobs Online series.
-It allows users to examine regional vacancy trends over time and compare the latest regional labour-demand levels.
+This page presents the overall pattern of online labour demand in New Zealand using the monthly Jobs Online series.
+It focuses on the long-run vacancy trend, recent changes over time, and the contrast between skilled and unskilled labour demand.
 """
 )
 
-# ============================================================
-# Load data
-# ============================================================
 DATA_PATH = os.path.join("data", "integrated", "jobs_online_monthly.csv")
 
 @st.cache_data
@@ -29,19 +26,12 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ============================================================
-# Required columns
-# ============================================================
 date_col = "date"
-region_cols = [
-    "auckland",
-    "wellington",
-    "north_island_other",
-    "canterbury",
-    "south_island_other"
-]
+total_col = "totals"
+skilled_col = "skilledindex"
+unskilled_col = "unskilledindex"
 
-required_cols = [date_col] + region_cols
+required_cols = [date_col, total_col, skilled_col, unskilled_col]
 missing_cols = [col for col in required_cols if col not in df.columns]
 
 if missing_cols:
@@ -50,121 +40,169 @@ if missing_cols:
     st.stop()
 
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-df = df.sort_values(date_col).reset_index(drop=True)
+df = df.dropna(subset=[date_col]).sort_values(date_col).reset_index(drop=True)
 
-# ============================================================
-# Data overview
-# ============================================================
-st.header("Data Overview")
-st.write(f"Dataset path: {DATA_PATH}")
-st.write(f"Shape: {df.shape}")
+st.header("Controls")
 
-latest_date = df[date_col].dropna().iloc[-1]
-st.write(f"Latest observation: {latest_date.strftime('%b %Y')}")
+min_date = df[date_col].min().date()
+max_date = df[date_col].max().date()
 
-# ============================================================
-# Region selector
-# ============================================================
-st.header("Regional Trend Comparison")
-
-selected_regions = st.multiselect(
-    "Select regions to compare",
-    options=region_cols,
-    default=["auckland", "wellington", "canterbury"]
+date_range = st.slider(
+    "Select date range",
+    min_value=min_date,
+    max_value=max_date,
+    value=(min_date, max_date)
 )
 
-if not selected_regions:
-    st.warning("Please select at least one region.")
+skill_view = st.radio(
+    "Skilled vs Unskilled view",
+    ["Both", "Skilled only", "Unskilled only"],
+    horizontal=True
+)
+
+start_date, end_date = date_range
+
+df_filtered = df[
+    (df[date_col].dt.date >= start_date) &
+    (df[date_col].dt.date <= end_date)
+].copy()
+
+if df_filtered.empty:
+    st.warning("No data available for the selected date range.")
     st.stop()
 
-# ============================================================
-# Regional trend chart
-# ============================================================
+st.header("Data Overview")
+st.write(f"Filtered dataset shape: {df_filtered.shape}")
+st.write(
+    f"Selected date range: **{start_date.strftime('%d %b %Y')}** to **{end_date.strftime('%d %b %Y')}**"
+)
+
+with st.expander("Show raw data preview"):
+    st.dataframe(df_filtered.head(), use_container_width=True)
+
+st.header("Summary Indicators")
+
+latest_value = df_filtered[total_col].dropna().iloc[-1]
+peak_value = df_filtered[total_col].max()
+trough_value = df_filtered[total_col].min()
+
+peak_date = df_filtered.loc[df_filtered[total_col].idxmax(), date_col]
+trough_date = df_filtered.loc[df_filtered[total_col].idxmin(), date_col]
+latest_date = df_filtered[date_col].dropna().iloc[-1]
+
+if len(df_filtered[total_col].dropna()) >= 2:
+    previous_value = df_filtered[total_col].dropna().iloc[-2]
+    latest_delta = latest_value - previous_value
+else:
+    latest_delta = 0.0
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Latest vacancy index", f"{latest_value:.1f}", f"{latest_delta:+.1f}")
+
+with col2:
+    st.metric("Peak vacancy index", f"{peak_value:.1f}")
+
+with col3:
+    st.metric("Lowest vacancy index", f"{trough_value:.1f}")
+
+st.write(f"Latest observation: {latest_date.strftime('%b %Y')}")
+st.write(f"Peak observation: {peak_date.strftime('%b %Y')}")
+st.write(f"Lowest observation: {trough_date.strftime('%b %Y')}")
+
+st.header("Overall NZ Vacancy Trend")
+
 fig1, ax1 = plt.subplots(figsize=(10, 5))
-
-for region in selected_regions:
-    ax1.plot(df[date_col], df[region], label=region.replace("_", " ").title())
-
-ax1.set_title("Regional Labour Demand Trends")
+ax1.plot(df_filtered[date_col], df_filtered[total_col], label="Total vacancy index")
+ax1.set_title("Overall NZ Vacancy Trend")
 ax1.set_xlabel("Date")
 ax1.set_ylabel("Vacancy Index")
-ax1.legend()
 ax1.grid(True, alpha=0.3)
-
+ax1.legend()
 st.pyplot(fig1)
 
 st.write(
     """
-Regional patterns are clearly uneven, which suggests that labour demand is influenced by local economic structure and
-the concentration of different industries. Some regions show stronger or more sustained vacancy growth, while others
-appear more volatile. This matters because it shows that national labour demand trends do not fully capture regional
-differences, which supports the inclusion of subgroup analysis in the project.
+The overall Jobs Online series shows that labour demand in New Zealand has not been stable over time.
+Instead, the series moves through periods of contraction and recovery, suggesting that vacancy activity responds
+to broader economic and labour market conditions.
 """
 )
 
-# ============================================================
-# Latest regional snapshot
-# ============================================================
-st.header("Latest Regional Labour Demand Snapshot")
+st.header("Annual Change in Labour Demand")
 
-latest_row = df.loc[df[date_col] == latest_date, [date_col] + region_cols].copy()
+annual_df = df_filtered.copy()
+annual_df["year"] = annual_df[date_col].dt.year
+annual_avg = annual_df.groupby("year")[total_col].mean().reset_index()
+annual_avg["annual_change_pct"] = annual_avg[total_col].pct_change() * 100
 
-if latest_row.empty:
-    st.warning("No latest regional snapshot available.")
-else:
-    latest_values = latest_row.iloc[0][region_cols].sort_values(ascending=False)
-
-    fig2, ax2 = plt.subplots(figsize=(10, 5))
-    ax2.bar(
-        [r.replace("_", " ").title() for r in latest_values.index],
-        latest_values.values
-    )
-    ax2.set_title(f"Regional Vacancy Index ({latest_date.strftime('%b %Y')})")
-    ax2.set_xlabel("Region")
-    ax2.set_ylabel("Vacancy Index")
-    ax2.grid(True, axis="y", alpha=0.3)
-
-    st.pyplot(fig2)
-
-# ============================================================
-# Regional ranking table
-# ============================================================
-st.header("Regional Ranking Table")
-
-ranking_df = pd.DataFrame({
-    "Region": [r.replace("_", " ").title() for r in latest_values.index],
-    "Latest Vacancy Index": latest_values.values
-})
-
-ranking_df["Rank"] = range(1, len(ranking_df) + 1)
-ranking_df = ranking_df[["Rank", "Region", "Latest Vacancy Index"]]
-
-st.dataframe(ranking_df, use_container_width=True)
-
-# ============================================================
-# Top and bottom region summary
-# ============================================================
-st.header("Regional Summary")
-
-top_region = ranking_df.iloc[0]
-bottom_region = ranking_df.iloc[-1]
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric("Top region", top_region["Region"], f"{top_region['Latest Vacancy Index']:.1f}")
-
-with col2:
-    st.metric("Lowest region", bottom_region["Region"], f"{bottom_region['Latest Vacancy Index']:.1f}")
+fig2, ax2 = plt.subplots(figsize=(10, 5))
+ax2.bar(annual_avg["year"].astype(str), annual_avg["annual_change_pct"])
+ax2.axhline(0, linestyle="--")
+ax2.set_title("Annual Percentage Change in Vacancy Index")
+ax2.set_xlabel("Year")
+ax2.set_ylabel("Percentage Change (%)")
+ax2.grid(True, axis="y", alpha=0.3)
+st.pyplot(fig2)
 
 st.write(
-    f"In the latest month ({latest_date.strftime('%b %Y')}), the highest vacancy index is observed in "
-    f"**{top_region['Region']}** at **{top_region['Latest Vacancy Index']:.1f}**, while the lowest is observed in "
-    f"**{bottom_region['Region']}** at **{bottom_region['Latest Vacancy Index']:.1f}**."
+    """
+The annual change chart highlights that labour demand growth has not followed a uniform path.
+Some years show strong recovery, while others show clear contraction.
+"""
 )
 
-# ============================================================
-# Optional raw data preview
-# ============================================================
-with st.expander("Show regional data preview"):
-    st.dataframe(df[[date_col] + region_cols].head(), use_container_width=True)
+st.header("Skilled vs Unskilled Labour Demand")
+
+fig3, ax3 = plt.subplots(figsize=(10, 5))
+
+if skill_view in ["Both", "Skilled only"]:
+    ax3.plot(df_filtered[date_col], df_filtered[skilled_col], label="Skilled")
+
+if skill_view in ["Both", "Unskilled only"]:
+    ax3.plot(df_filtered[date_col], df_filtered[unskilled_col], label="Unskilled")
+
+ax3.set_title("Skilled vs Unskilled Labour Demand")
+ax3.set_xlabel("Date")
+ax3.set_ylabel("Vacancy Index")
+ax3.legend()
+ax3.grid(True, alpha=0.3)
+st.pyplot(fig3)
+
+st.write(
+    """
+The comparison between skill groups suggests that labour demand may not affect all parts of the workforce in the same way.
+Differences between skilled and unskilled vacancy trends may reflect variation across different segments of the labour market.
+"""
+)
+
+st.header("Key Takeaways")
+
+long_run_avg = df_filtered[total_col].mean()
+
+st.markdown(
+    f"""
+- The latest national vacancy index in the selected period is **{latest_value:.1f}**.
+- The highest observed vacancy index is **{peak_value:.1f}**, recorded in **{peak_date.strftime('%b %Y')}**.
+- The lowest observed vacancy index is **{trough_value:.1f}**, recorded in **{trough_date.strftime('%b %Y')}**.
+- The latest value is **{'above' if latest_value > long_run_avg else 'below'}** the average level for the selected period.
+"""
+)
+
+st.subheader("Business takeaway")
+st.write(
+    "National labour demand has moved through clear cycles of decline and recovery, which makes short-term monitoring especially important."
+)
+
+st.header("Download Data")
+
+download_df = df_filtered[[date_col, total_col, skilled_col, unskilled_col]].copy()
+csv_data = download_df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="Download filtered national trend data as CSV",
+    data=csv_data,
+    file_name="nz_labour_demand_trends_filtered.csv",
+    mime="text/csv"
+)

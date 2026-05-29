@@ -14,9 +14,6 @@ It focuses on the long-run vacancy trend, recent changes over time, and the cont
 """
 )
 
-# ============================================================
-# Load data
-# ============================================================
 DATA_PATH = os.path.join("data", "integrated", "jobs_online_monthly.csv")
 
 @st.cache_data
@@ -29,17 +26,14 @@ except Exception as e:
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ============================================================
-# Basic preparation
-# ============================================================
 date_col = "date"
 total_col = "totals"
 skilled_col = "skilledindex"
 unskilled_col = "unskilledindex"
 
 required_cols = [date_col, total_col, skilled_col, unskilled_col]
-
 missing_cols = [col for col in required_cols if col not in df.columns]
+
 if missing_cols:
     st.error(f"Missing required columns: {missing_cols}")
     st.write("Available columns:", list(df.columns))
@@ -48,9 +42,6 @@ if missing_cols:
 df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 df = df.dropna(subset=[date_col]).sort_values(date_col).reset_index(drop=True)
 
-# ============================================================
-# Controls
-# ============================================================
 st.header("Controls")
 
 min_date = df[date_col].min().date()
@@ -80,12 +71,7 @@ if df_filtered.empty:
     st.warning("No data available for the selected date range.")
     st.stop()
 
-# ============================================================
-# Data overview
-# ============================================================
 st.header("Data Overview")
-st.write(f"Dataset path: {DATA_PATH}")
-st.write(f"Full dataset shape: {df.shape}")
 st.write(f"Filtered dataset shape: {df_filtered.shape}")
 st.write(
     f"Selected date range: **{start_date.strftime('%d %b %Y')}** to **{end_date.strftime('%d %b %Y')}**"
@@ -94,9 +80,6 @@ st.write(
 with st.expander("Show raw data preview"):
     st.dataframe(df_filtered.head(), use_container_width=True)
 
-# ============================================================
-# Summary indicators
-# ============================================================
 st.header("Summary Indicators")
 
 latest_value = df_filtered[total_col].dropna().iloc[-1]
@@ -128,9 +111,6 @@ st.write(f"Latest observation: {latest_date.strftime('%b %Y')}")
 st.write(f"Peak observation: {peak_date.strftime('%b %Y')}")
 st.write(f"Lowest observation: {trough_date.strftime('%b %Y')}")
 
-# ============================================================
-# Overall NZ Vacancy Trend
-# ============================================================
 st.header("Overall NZ Vacancy Trend")
 
 fig1, ax1 = plt.subplots(figsize=(10, 5))
@@ -140,21 +120,16 @@ ax1.set_xlabel("Date")
 ax1.set_ylabel("Vacancy Index")
 ax1.grid(True, alpha=0.3)
 ax1.legend()
-
 st.pyplot(fig1)
 
 st.write(
     """
 The overall Jobs Online series shows that labour demand in New Zealand has not been stable over time.
 Instead, the series moves through periods of contraction and recovery, suggesting that vacancy activity responds
-to broader economic and labour market conditions. This pattern is important because it confirms that the series
-contains meaningful short-term variation and is therefore relevant for later forecasting.
+to broader economic and labour market conditions.
 """
 )
 
-# ============================================================
-# Annual Change in Labour Demand
-# ============================================================
 st.header("Annual Change in Labour Demand")
 
 annual_df = df_filtered.copy()
@@ -169,20 +144,15 @@ ax2.set_title("Annual Percentage Change in Vacancy Index")
 ax2.set_xlabel("Year")
 ax2.set_ylabel("Percentage Change (%)")
 ax2.grid(True, axis="y", alpha=0.3)
-
 st.pyplot(fig2)
 
 st.write(
     """
-The annual change chart highlights that labour demand growth has not followed a uniform path. Some years show strong
-recovery, while others show clear contraction. This reinforces the view that labour demand is sensitive to changing
-economic conditions and should be interpreted as a dynamic rather than stable series.
+The annual change chart highlights that labour demand growth has not followed a uniform path.
+Some years show strong recovery, while others show clear contraction.
 """
 )
 
-# ============================================================
-# Skilled vs Unskilled Labour Demand
-# ============================================================
 st.header("Skilled vs Unskilled Labour Demand")
 
 fig3, ax3 = plt.subplots(figsize=(10, 5))
@@ -198,21 +168,15 @@ ax3.set_xlabel("Date")
 ax3.set_ylabel("Vacancy Index")
 ax3.legend()
 ax3.grid(True, alpha=0.3)
-
 st.pyplot(fig3)
 
 st.write(
     """
 The comparison between skill groups suggests that labour demand may not affect all parts of the workforce in the same way.
-Differences between skilled and unskilled vacancy trends may reflect variation in job structure, hiring difficulty, or employer
-demand across different segments of the labour market. This is relevant for forecasting because it indicates that labour demand
-is not evenly distributed across workforce categories.
+Differences between skilled and unskilled vacancy trends may reflect variation across different segments of the labour market.
 """
 )
 
-# ============================================================
-# Key Takeaways
-# ============================================================
 st.header("Key Takeaways")
 
 long_run_avg = df_filtered[total_col].mean()
@@ -223,13 +187,14 @@ st.markdown(
 - The highest observed vacancy index is **{peak_value:.1f}**, recorded in **{peak_date.strftime('%b %Y')}**.
 - The lowest observed vacancy index is **{trough_value:.1f}**, recorded in **{trough_date.strftime('%b %Y')}**.
 - The latest value is **{'above' if latest_value > long_run_avg else 'below'}** the average level for the selected period.
-- The national series shows clear periods of decline and recovery, which supports its use in short-term forecasting.
 """
 )
 
-# ============================================================
-# Download filtered data
-# ============================================================
+st.subheader("Business takeaway")
+st.write(
+    "National labour demand has moved through clear cycles of decline and recovery, which makes short-term monitoring especially important."
+)
+
 st.header("Download Data")
 
 download_df = df_filtered[[date_col, total_col, skilled_col, unskilled_col]].copy()

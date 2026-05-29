@@ -6,9 +6,15 @@ st.title("Project Overview")
 
 st.write(
     """
-This dashboard presents an interactive view of short-term labour demand trends in New Zealand using Jobs Online data and official labour market data from Stats NZ. 
-It examines how online labour demand has changed over time, how it differs across regions, industries, and occupations, 
-and whether recent vacancy patterns can support short-term forecasting over the next 3–6 months.
+This dashboard explores short-term labour demand trends in New Zealand using Jobs Online data and official labour market data from Stats NZ. 
+It focuses on how online labour demand has changed over time, how patterns differ across regions, industries, and occupations, 
+and whether recent vacancy trends can support short-term forecasting over the next 3–6 months.
+"""
+)
+
+st.write(
+    """
+This dashboard is designed to present the main project findings in an interactive format, allowing users to explore national trends, subgroup differences, forecast outputs, and official labour market context.
 """
 )
 
@@ -103,15 +109,13 @@ interpretation of the forecast results.
 
 st.header("Workflow Overview")
 
-st.write("The project follows four main stages:")
-
 st.markdown(
     """
 **1. Data acquisition and cleaning**  
 Raw Jobs Online and Stats NZ datasets are collected, cleaned, and standardised.
 
 **2. Data integration and preparation**  
-The cleaned datasets are reshaped and combined into cleaned and integrated tables for analysis.
+The cleaned datasets are reshaped and combined into integrated tables for analysis.
 
 **3. Exploratory data analysis**  
 Labour demand trends are explored across time, regions, industries, occupations, and skills.
