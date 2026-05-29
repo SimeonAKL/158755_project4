@@ -85,7 +85,7 @@ st.header("Latest Regional Labour Demand Snapshot")
 
 latest_row = df.loc[df[date_col] == latest_date, [date_col] + region_cols].copy()
 
-latest_values = latest_row.iloc[0][region_cols].sort_values(ascending=False)
+latest_values = latest_row.iloc[0][selected_regions].sort_values(ascending=False)
 
 fig2, ax2 = plt.subplots(figsize=(10, 5))
 ax2.bar(
