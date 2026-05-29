@@ -140,32 +140,41 @@ def inject_css() -> None:
         max-width: 1340px !important;
     }}
 
-    /* ── Sidebar ─────────────────────────────────────────────────────────── */
-    section[data-testid="stSidebar"] {{
-        background: linear-gradient(175deg, {C["navy_deep"]} 0%, {C["navy"]} 100%) !important;
-        border-right: 1px solid rgba(212,166,74,0.18) !important;
-    }}
-    section[data-testid="stSidebar"] * {{
-        color: rgba(255,255,255,0.9) !important;
-        font-family: 'Inter', sans-serif !important;
-    }}
-    section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {{
-        font-size: 0.875rem !important;
-        font-weight: 400 !important;
-        color: rgba(255,255,255,0.82) !important;
-        padding: 0.35rem 0.5rem !important;
-        border-radius: 4px !important;
-        transition: color 0.15s ease !important;
-    }}
-    section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {{
-        color: {C["gold"]} !important;
-        background: rgba(212,166,74,0.08) !important;
-    }}
-    section[data-testid="stSidebar"] [aria-selected="true"] {{
-        background: rgba(212,166,74,0.14) !important;
-        border-left: 3px solid {C["gold"]} !important;
-        color: #ffffff !important;
-    }}
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+section[data-testid="stSidebar"] {{
+    background: linear-gradient(175deg, #00263A 0%, #003B5C 100%) !important;
+    border-right: 1px solid rgba(212,166,74,0.18) !important;
+}}
+
+/* Only style readable text content */
+/* Do NOT target generic span, because Streamlit uses icon ligatures in spans */
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] li,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {{
+    color: rgba(255,255,255,0.9) !important;
+    font-family: 'Inter', sans-serif !important;
+}}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {{
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    color: rgba(255,255,255,0.82) !important;
+    padding: 0.35rem 0.5rem !important;
+    border-radius: 4px !important;
+    transition: color 0.15s ease !important;
+}}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {{
+    color: #D4A64A !important;
+    background: rgba(212,166,74,0.08) !important;
+}}
+
+section[data-testid="stSidebar"] [aria-selected="true"] {{
+    background: rgba(212,166,74,0.14) !important;
+    border-left: 3px solid #D4A64A !important;
+    color: #ffffff !important;
+}}
 
     /* ── Page title  h1 ─────────────────────────────────────────────────── */
     h1 {{
@@ -546,7 +555,7 @@ def page_hero(
     """
     C = PALETTE
     subtitle_html = (
-        f'<div style="font-family:Inter,sans-serif; font-size:1rem; font-weight:300; '
+        f'<div style="font-family:Inter,sans-serif; font-size:1.2rem; font-weight:300; '
         f'color:#FFFFFF; line-height:1.7; max-width:1000px; margin:0.75rem 0 0 0;">'
         f'{subtitle}</div>'
     ) if subtitle else ""
@@ -563,7 +572,7 @@ def page_hero(
         ">
             <div style="
                 font-family: 'Inter', sans-serif;
-                font-size: 1.00rem; font-weight: 700;
+                font-size: 1.10rem; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.2em;
                 color: {C['gold']}; margin-bottom: 0.65rem;
             ">{eyebrow}</div>
