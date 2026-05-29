@@ -5,11 +5,11 @@ Massey-inspired formal executive theme — NZ Labour Demand Forecaster.
 
 Colour system
 -------------
-  #003B5C  primary navy    — titles, sidebar, table headers, metric accents
-  #00263A  deep navy       — hero bg, sidebar gradient base
+  #004B8D  primary navy    — titles, sidebar, table headers, metric accents
+  #004B8D  deep navy       — hero bg, sidebar gradient base
   #1E293B  near-black navy — body text, chart titles
   #64748B  slate           — secondary text, captions, muted labels
-  #D4A64A  gold            — accent only: section rules, borders, eyebrows
+  #F4BD58  gold            — accent only: section rules, borders, eyebrows
   #E2E8F0  cool gray       — card borders, gridlines, dividers
   #F8FAFC  off-white       — page surface
   #FFFFFF  white           — card backgrounds
@@ -47,13 +47,13 @@ import plotly.graph_objects as go
 
 PALETTE = {
     # ── Massey navy scale ────────────────────────────────────────────────
-    "navy_deep":   "#00263A",   # deepest — hero bg, sidebar root
-    "navy":        "#003B5C",   # primary — titles, sidebar, table heads
+    "navy_deep":   "#004B8D",   # deepest — hero bg, sidebar root
+    "navy":        "#046096",   # primary — titles, sidebar, table heads
     "navy_body":   "#1E293B",   # near-black — body text, chart titles
     "navy_mid":    "#1E293B",   # alias used by pages (kept for compat)
 
     # ── Gold accent ──────────────────────────────────────────────────────
-    "gold":        "#D4A64A",   # single accent — section rules, borders, eyebrows
+    "gold":        "#F4BD58",   # single accent — section rules, borders, eyebrows
     "gold_light":  "rgba(212,166,74,0.12)",  # forecast band fill
 
     # ── Surface & card ───────────────────────────────────────────────────
