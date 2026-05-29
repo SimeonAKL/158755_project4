@@ -27,15 +27,15 @@ st.markdown(
         margin-bottom: 2rem;
         color: white;
     ">
-        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase;
-                    letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:0.5rem;">
+        <div style="font-size:0.78rem; font-weight:700; text-transform:uppercase;
+                    letter-spacing:0.18em; color:rgba(255,255,255,0.85); margin-bottom:0.65rem;">
             New Zealand · Labour Market Intelligence
         </div>
-        <h1 style="font-family:'DM Serif Display',serif; font-size:2.2rem; font-weight:400;
-                   color:#ffffff; border:none; margin:0 0 0.75rem 0; padding:0;">
+        <h1 style="font-family:'DM Serif Display',serif; font-size:3rem; font-weight:400;
+                   color:#ffffff; border:none; margin:0 0 1rem 0; padding:0; line-height:1.15;">
             NZ Labour Demand Forecaster
         </h1>
-        <p style="font-size:0.95rem; color:rgba(255,255,255,0.8); margin:0; max-width:680px; line-height:1.6;">
+        <p style="font-size:1.1rem; color:#ffffff; margin:0; max-width:680px; line-height:1.7;">
             A decision-support view of short-term hiring demand across New Zealand —
             tracking where hiring is rising, softening, or holding steady across regions,
             sectors, and occupations.
@@ -124,10 +124,13 @@ fig1.update_layout(**plotly_layout(
 ))
 st.plotly_chart(fig1, use_container_width=True)
 
-st.write(
+st.markdown(
+    "<p style='font-size:1rem; color:#0D1F2D; line-height:1.75;'>"
     "New Zealand hiring demand has moved through clear cycles of contraction and recovery. "
     "The series responds to broad economic conditions, making timely monitoring valuable for "
     "workforce planning and market positioning."
+    "</p>",
+    unsafe_allow_html=True,
 )
 
 # ── Forecast preview ──────────────────────────────────────────────────────────
@@ -155,11 +158,14 @@ fig2.update_layout(**plotly_layout(
 ))
 st.plotly_chart(fig2, use_container_width=True)
 
-st.write(
-    f"The most recent national forecast reading is **{latest_fc_value:.2f}** for "
-    f"**{latest_fc_date.strftime('%b %Y')}**. This is a short-term directional signal, "
+st.markdown(
+    f"<p style='font-size:1rem; color:#0D1F2D; line-height:1.75;'>"
+    f"The most recent national forecast reading is <strong>{latest_fc_value:.2f}</strong> for "
+    f"<strong>{latest_fc_date.strftime('%b %Y')}</strong>. This is a short-term directional signal, "
     "not a long-run projection — designed to help identify whether hiring momentum is "
     "building, holding, or easing."
+    "</p>",
+    unsafe_allow_html=True,
 )
 
 # ── Industry & Regional snapshot tables ───────────────────────────────────────

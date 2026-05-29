@@ -169,9 +169,9 @@ def inject_css() -> None:
 
     /* ── Body text ──────────────────────────────────────────────────────── */
     p, li, .stMarkdown p {{
-        font-size: 0.92rem;
-        line-height: 1.7;
-        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.75;
+        color: {PALETTE["text_primary"]};
     }}
 
     /* ── Metrics ────────────────────────────────────────────────────────── */
@@ -184,11 +184,11 @@ def inject_css() -> None:
         box-shadow: 0 1px 4px rgba(11,45,78,0.06);
     }}
     div[data-testid="metric-container"] label {{
-        font-size: 0.72rem !important;
+        font-size: 0.78rem !important;
         font-weight: 600 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.07em !important;
-        color: {PALETTE["text_light"]} !important;
+        color: {PALETTE["text_secondary"]} !important;
     }}
     div[data-testid="metric-container"] [data-testid="stMetricValue"] {{
         font-size: 1.75rem !important;
@@ -295,17 +295,17 @@ def inject_css() -> None:
         box-shadow: 0 1px 4px rgba(11,45,78,0.05);
     }}
     .nz-info-card .nz-card-title {{
-        font-size: 0.78rem;
+        font-size: 0.85rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.07em;
         color: {PALETTE["ocean_blue"]};
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.4rem;
     }}
     .nz-info-card .nz-card-body {{
-        font-size: 0.88rem;
-        color: {PALETTE["text_secondary"]};
-        line-height: 1.6;
+        font-size: 0.95rem;
+        color: {PALETTE["text_primary"]};
+        line-height: 1.65;
         margin: 0;
     }}
 
@@ -320,15 +320,15 @@ def inject_css() -> None:
         border-bottom: 1px solid {PALETTE["border"]};
     }}
     .nz-section-header .nz-sh-title {{
-        font-size: 0.72rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: {PALETTE["ocean_blue"]};
     }}
     .nz-section-header .nz-sh-subtitle {{
-        font-size: 0.82rem;
-        color: {PALETTE["text_light"]};
+        font-size: 0.9rem;
+        color: {PALETTE["text_secondary"]};
     }}
 
     /* ── Takeaway / key-insight block ────────────────────────────────────── */
@@ -341,17 +341,17 @@ def inject_css() -> None:
         margin-top: 1rem;
     }}
     .nz-takeaway .nz-tk-label {{
-        font-size: 0.7rem;
+        font-size: 0.76rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: {PALETTE["teal"]};
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.35rem;
     }}
     .nz-takeaway .nz-tk-text {{
-        font-size: 0.9rem;
+        font-size: 1rem;
         color: {PALETTE["text_primary"]};
-        line-height: 1.6;
+        line-height: 1.7;
         margin: 0;
     }}
 
