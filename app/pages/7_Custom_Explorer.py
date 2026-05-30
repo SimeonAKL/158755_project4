@@ -71,27 +71,26 @@ GROUP_MAP = {
 }
 
 section_header("Explorer Controls")
-st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-ca, cb = st.columns([1, 2])
-with ca:
-    series_group = st.selectbox("Data group", list(GROUP_MAP.keys()))
-opts     = GROUP_MAP[series_group]
-avail    = [lbl for lbl, col in opts.items() if col in df.columns]
-with cb:
-    sel_lbls = st.multiselect(
-        f"Select {series_group.lower()} series",
-        avail, default=avail[:2] if len(avail) >= 2 else avail,
-    )
-cc, cd = st.columns([3, 1])
-with cc:
-    min_date   = df[date_col].min().date()
-    max_date   = df[date_col].max().date()
-    date_range = st.slider("Date range", min_value=min_date, max_value=max_date,
-                           value=(min_date, max_date))
-with cd:
-    normalize = st.checkbox("Index to 100",
-                            help="Rebase all series to 100 at the start of the selected period.")
-st.markdown("</div>", unsafe_allow_html=True)
+with st.container(border=True):
+    ca, cb = st.columns([1, 2])
+    with ca:
+        series_group = st.selectbox("Data group", list(GROUP_MAP.keys()))
+    opts     = GROUP_MAP[series_group]
+    avail    = [lbl for lbl, col in opts.items() if col in df.columns]
+    with cb:
+        sel_lbls = st.multiselect(
+            f"Select {series_group.lower()} series",
+            avail, default=avail[:2] if len(avail) >= 2 else avail,
+        )
+    cc, cd = st.columns([3, 1])
+    with cc:
+        min_date   = df[date_col].min().date()
+        max_date   = df[date_col].max().date()
+        date_range = st.slider("Date range", min_value=min_date, max_value=max_date,
+                               value=(min_date, max_date))
+    with cd:
+        normalize = st.checkbox("Index to 100",
+                                help="Rebase all series to 100 at the start of the selected period.")
 
 if not sel_lbls:
     st.warning("Please select at least one series.")

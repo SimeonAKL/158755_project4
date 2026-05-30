@@ -79,21 +79,18 @@ questions = [
 def _render_question(i, q, a):
     st.markdown(
         f"""
-        <div style="
-            background:{C['card_bg']}; border:1px solid {C['border']};
-            border-left:4px solid {C['gold']}; border-radius:6px;
-            padding:1.1rem 1.4rem; margin-bottom:0.75rem;
-            box-shadow:0 1px 4px rgba(0,59,92,0.05);
-        ">
-            <div style="font-family:'Inter',sans-serif; font-size:0.66rem;
-                font-weight:700; text-transform:uppercase; letter-spacing:0.13em;
-                color:{C['gold']}; margin-bottom:0.3rem;">Research Question {i}</div>
-            <div style="font-family:'Inter',sans-serif; font-size:1rem; font-weight:600;
-                color:{C['navy']}; margin-bottom:0.3rem; line-height:1.5;">{q}</div>
-            <div style="font-family:'Inter',sans-serif; font-size:0.92rem;
-                color:{C['text_secondary']}; line-height:1.6;">{a}</div>
-        </div>
-        """,
+<div style="background:{C['card_bg']}; border:1px solid {C['border']}; border-left:5px solid {C['gold']}; border-radius:8px; padding:1.45rem 1.65rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(0,59,92,0.07);">
+  <div style="font-family:'Inter',sans-serif; font-size:1.40rem; font-weight:800; text-transform:uppercase; letter-spacing:0.14em; color:{C['gold']}; margin-bottom:0.55rem;">
+    Research Question {i}
+  </div>
+  <div style="font-family:'Inter',sans-serif; font-size:1.25rem; font-weight:700; color:{C['navy']}; margin-bottom:0.5rem; line-height:1.45;">
+    {q}
+  </div>
+  <div style="font-family:'Inter',sans-serif; font-size:1.08rem; color:{C['text_secondary']}; line-height:1.65;">
+    {a}
+  </div>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
@@ -149,21 +146,18 @@ for col, (num, title, desc) in zip(cols, steps):
     with col:
         st.markdown(
             f"""
-            <div style="background:{C['card_bg']}; border:1px solid {C['border']};
-                border-top:3px solid {C['gold']}; border-radius:6px;
-                padding:1.4rem 1.2rem; text-align:center; height:100%;
-                box-shadow:0 1px 6px rgba(0,59,92,0.06);">
-                <div style="width:36px; height:36px; border-radius:50%;
-                    background:{C['navy']}; color:{C['gold']};
-                    font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:600;
-                    display:flex; align-items:center; justify-content:center;
-                    margin:0 auto 0.8rem auto;">{num}</div>
-                <div style="font-family:'Inter',sans-serif; font-size:0.88rem;
-                    font-weight:700; color:{C['navy']}; margin-bottom:0.45rem;">{title}</div>
-                <div style="font-family:'Inter',sans-serif; font-size:0.86rem;
-                    color:{C['text_secondary']}; line-height:1.6;">{desc}</div>
-            </div>
-            """,
+<div style="background:{C['card_bg']}; border:1px solid {C['border']}; border-top:4px solid {C['gold']}; border-radius:8px; padding:1.8rem 1.4rem; text-align:center; height:100%; box-shadow:0 2px 8px rgba(0,59,92,0.08);">
+  <div style="width:44px; height:44px; border-radius:50%; background:{C['navy']}; color:{C['gold']}; font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+    {num}
+  </div>
+  <div style="font-family:'Inter',sans-serif; font-size:1.5rem; font-weight:800; color:{C['navy']}; margin-bottom:0.7rem; line-height:1.35;">
+    {title}
+  </div>
+  <div style="font-family:'Inter',sans-serif; font-size:1.3rem; color:{C['text_secondary']}; line-height:1.65;">
+    {desc}
+  </div>
+</div>
+""",
             unsafe_allow_html=True,
         )
 
@@ -184,10 +178,10 @@ for page, desc in nav_items:
         f"""
         <div style="display:flex; align-items:flex-start; gap:1.25rem;
             padding:0.75rem 0.5rem; border-bottom:1px solid {C['border_light']};">
-            <span style="font-family:'Inter',sans-serif; font-size:0.9rem;
+            <span style="font-family:'Inter',sans-serif; font-size:1.5rem;
                 font-weight:700; color:{C['navy']}; min-width:220px; padding-top:1px;">
                 {page}</span>
-            <span style="font-family:'Inter',sans-serif; font-size:0.9rem;
+            <span style="font-family:'Inter',sans-serif; font-size:1.3rem;
                 color:{C['text_secondary']}; line-height:1.6;">{desc}</span>
         </div>
         """,

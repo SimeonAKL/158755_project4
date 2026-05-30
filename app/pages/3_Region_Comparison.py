@@ -53,13 +53,12 @@ df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
 df = df.sort_values(date_col).reset_index(drop=True)
 
 section_header("Chart Controls")
-st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-selected = st.multiselect(
-    "Select regions to compare",
-    options=region_cols, default=["auckland", "wellington", "canterbury"],
-    format_func=lambda x: LABELS.get(x, x),
-)
-st.markdown("</div>", unsafe_allow_html=True)
+with st.container(border=True):
+    selected = st.multiselect(
+        "Select regions to compare",
+        options=region_cols, default=["auckland", "wellington", "canterbury"],
+        format_func=lambda x: LABELS.get(x, x),
+    )
 
 if not selected:
     st.warning("Please select at least one region.")
@@ -112,11 +111,15 @@ st.plotly_chart(fig2, use_container_width=True)
 # ── Rankings ──────────────────────────────────────────────────────────────────
 section_header("Regional Rankings")
 
+# Ensure selected regional values are numeric before ranking and rounding
+latest_vals = pd.to_numeric(latest_vals, errors="coerce").dropna()
+
 ranking_df = pd.DataFrame({
-    "Rank":                range(1, len(latest_vals) + 1),
-    "Region":             [LABELS.get(r, r) for r in latest_vals.index],
-    "Hiring Demand Index": latest_vals.values.round(1),
+    "Rank": range(1, len(latest_vals) + 1),
+    "Region": [LABELS.get(r, r) for r in latest_vals.index],
+    "Hiring Demand Index": latest_vals.round(1).tolist(),
 })
+
 st.dataframe(ranking_df.set_index("Rank"), use_container_width=True)
 
 section_header("Period Summary")

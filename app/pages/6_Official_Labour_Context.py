@@ -62,21 +62,20 @@ INDICATOR_LABELS = {
 }
 
 section_header("Indicator Selection")
-st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-ca, cb = st.columns(2)
-with ca:
-    source_type = st.selectbox("Official data frequency",
-                               ["Monthly Indicators", "Quarterly Indicators"])
-with cb:
-    df_ctx  = df_monthly.copy() if source_type == "Monthly Indicators" else df_quarterly.copy()
-    ctx_dc  = monthly_date_col if source_type == "Monthly Indicators" else quarterly_date_col
-    d2a     = {INDICATOR_LABELS.get(c, c.replace("_"," ").title()): c for c in numeric_cols(df_ctx)}
-    pref    = ["Unemployment Rate","Underutilisation Rate",
-               "Male Paid Employment","Female Paid Employment","Filled Jobs"]
-    ordered = [n for n in pref if n in d2a] + [n for n in d2a if n not in pref]
-    sel_disp = st.selectbox("Select official indicator", ordered)
-    sel_ind  = d2a[sel_disp]
-st.markdown("</div>", unsafe_allow_html=True)
+with st.container(border=True):
+    ca, cb = st.columns(2)
+    with ca:
+        source_type = st.selectbox("Official data frequency",
+                                   ["Monthly Indicators", "Quarterly Indicators"])
+    with cb:
+        df_ctx  = df_monthly.copy() if source_type == "Monthly Indicators" else df_quarterly.copy()
+        ctx_dc  = monthly_date_col if source_type == "Monthly Indicators" else quarterly_date_col
+        d2a     = {INDICATOR_LABELS.get(c, c.replace("_"," ").title()): c for c in numeric_cols(df_ctx)}
+        pref    = ["Unemployment Rate","Underutilisation Rate",
+                   "Male Paid Employment","Female Paid Employment","Filled Jobs"]
+        ordered = [n for n in pref if n in d2a] + [n for n in d2a if n not in pref]
+        sel_disp = st.selectbox("Select official indicator", ordered)
+        sel_ind  = d2a[sel_disp]
 
 # ── Official indicator chart ──────────────────────────────────────────────────
 section_header(f"{sel_disp}", "Stats NZ official labour market series")

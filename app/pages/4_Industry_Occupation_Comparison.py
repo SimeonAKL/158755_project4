@@ -59,30 +59,29 @@ occupation_options = {
 }
 
 section_header("Chart Controls")
-st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-ca, cb = st.columns([1, 2])
-with ca:
-    comparison_type = st.selectbox("Comparison type", ["Industry", "Occupation"])
+with st.container(border=True):
+    ca, cb = st.columns([1, 2])
+    with ca:
+        comparison_type = st.selectbox("Comparison type", ["Industry", "Occupation"])
 
-options_dict     = industry_options if comparison_type == "Industry" else occupation_options
-available_labels = [lbl for lbl, col in options_dict.items() if col in df.columns]
+    options_dict     = industry_options if comparison_type == "Industry" else occupation_options
+    available_labels = [lbl for lbl, col in options_dict.items() if col in df.columns]
 
-if not available_labels:
-    st.error(f"No columns found for {comparison_type.lower()} comparison.")
-    st.stop()
+    if not available_labels:
+        st.error(f"No columns found for {comparison_type.lower()} comparison.")
+        st.stop()
 
-with cb:
-    default_sel     = available_labels[:3] if len(available_labels) >= 3 else available_labels
-    selected_labels = st.multiselect(
-        f"Select {comparison_type.lower()} groups",
-        options=available_labels, default=default_sel,
-    )
+    with cb:
+        default_sel     = available_labels[:3] if len(available_labels) >= 3 else available_labels
+        selected_labels = st.multiselect(
+            f"Select {comparison_type.lower()} groups",
+            options=available_labels, default=default_sel,
+        )
 
-min_date = df[date_col].min().date()
-max_date = df[date_col].max().date()
-date_range = st.slider("Date range", min_value=min_date, max_value=max_date,
-                       value=(min_date, max_date))
-st.markdown("</div>", unsafe_allow_html=True)
+    min_date = df[date_col].min().date()
+    max_date = df[date_col].max().date()
+    date_range = st.slider("Date range", min_value=min_date, max_value=max_date,
+                           value=(min_date, max_date))
 
 if not selected_labels:
     st.warning("Please select at least one category.")

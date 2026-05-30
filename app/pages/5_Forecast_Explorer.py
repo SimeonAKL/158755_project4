@@ -42,13 +42,12 @@ for dframe in [df_totals, df_industries, df_regions]:
     dframe["date"] = pd.to_datetime(dframe["date"], errors="coerce")
 
 section_header("Forecast Selection")
-st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-ca, cb, _ = st.columns(3)
-with ca:
-    forecast_type = st.selectbox("Forecast scope", ["National", "Industry", "Region"])
-with cb:
-    horizon = st.selectbox("Periods to display", [3, 6], index=1)
-st.markdown("</div>", unsafe_allow_html=True)
+with st.container(border=True):
+    ca, cb, _ = st.columns(3)
+    with ca:
+        forecast_type = st.selectbox("Forecast scope", ["National", "Industry", "Region"])
+    with cb:
+        horizon = st.selectbox("Periods to display", [3, 6], index=1)
 
 def render_forecast(df_plot, label, fc_col, lo_col, hi_col):
     df_plot = df_plot.dropna(subset=[fc_col]).sort_values("date").tail(horizon)
@@ -132,9 +131,8 @@ elif forecast_type == "Industry":
         "Hospitality":  ("hospitality_forecast",  "hospitality_lower",  "hospitality_upper"),
         "Sales":        ("sales_forecast",        "sales_lower",        "sales_upper"),
     }
-    st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-    sel_ind = st.selectbox("Select sector", list(ind_opts.keys()))
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        sel_ind = st.selectbox("Select sector", list(ind_opts.keys()))
 
     fc_col, lo_col, hi_col = ind_opts[sel_ind]
     section_header(f"{sel_ind} Forecast", "projected hiring demand — sector level")
@@ -152,9 +150,8 @@ elif forecast_type == "Region":
         "Wellington": ("wellington_forecast", "wellington_lower", "wellington_upper"),
         "Canterbury": ("canterbury_forecast", "canterbury_lower", "canterbury_upper"),
     }
-    st.markdown('<div class="m-controls">', unsafe_allow_html=True)
-    sel_reg = st.selectbox("Select region", list(reg_opts.keys()))
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        sel_reg = st.selectbox("Select region", list(reg_opts.keys()))
 
     fc_col, lo_col, hi_col = reg_opts[sel_reg]
     section_header(f"{sel_reg} Forecast", "projected hiring demand — regional level")

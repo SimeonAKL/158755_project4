@@ -146,6 +146,7 @@ section[data-testid="stSidebar"] {{
     border-right: 1px solid rgba(212,166,74,0.18) !important;
 }}
 
+
 /* Only style readable text content */
 /* Do NOT target generic span, because Streamlit uses icon ligatures in spans */
 section[data-testid="stSidebar"] p,
@@ -212,20 +213,20 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     /* ── Body copy ───────────────────────────────────────────────────────── */
     p, li {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1.2rem !important;
-        line-height: 1.8 !important;
+        font-size: 1.45rem !important;
+        line-height: 1.95 !important;
         color: {C["text_body"]} !important;
         font-weight: 400 !important;
     }}
     .stMarkdown p {{
-        font-size: 1.2rem !important;
-        line-height: 1.8 !important;
+        font-size: 1.45rem !important;
+        line-height: 1.95 !important;
         color: {C["text_body"]} !important;
     }}
 
     /* ── Captions ────────────────────────────────────────────────────────── */
     .stCaption, [data-testid="stCaptionContainer"] p {{
-        font-size: 1.05rem !important;
+        font-size: 1.25rem !important;
         color: {C["text_secondary"]} !important;
         line-height: 1.6 !important;
     }}
@@ -279,26 +280,43 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
         overflow: hidden !important;
         box-shadow: 0 1px 4px rgba(0,59,92,0.05) !important;
     }}
+
     .stDataFrame thead th {{
         background: {C["navy"]} !important;
         color: #ffffff !important;
         font-family: 'Inter', sans-serif !important;
-        font-size: 0.72rem !important;
+        font-size: 1.25rem !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.09em !important;
-        padding: 0.7rem 1rem !important;
+        letter-spacing: 0.06em !important;
+        padding: 0.85rem 1rem !important;
     }}
+
+    .stDataFrame thead th * {{
+        color: #ffffff !important;
+        font-size: 1.25rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 700 !important;
+    }}
+
     .stDataFrame td {{
-        font-size: 0.9rem !important;
+        font-size: 1.45rem !important;
         color: {C["text_body"]} !important;
-        padding: 0.6rem 1rem !important;
+        padding: 0.75rem 1rem !important;
         font-family: 'Inter', sans-serif !important;
     }}
+
+    .stDataFrame td * {{
+        font-size: 1.45rem !important;
+        color: {C["text_body"]} !important;
+        font-family: 'Inter', sans-serif !important;
+    }}
+
     .stDataFrame tr:nth-child(even) td {{
         background-color: {C["surface"]} !important;
     }}
 
+       
     /* ── Buttons ─────────────────────────────────────────────────────────── */
     .stDownloadButton > button,
     .stButton > button {{
@@ -313,10 +331,21 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
         padding: 0.5rem 1.35rem !important;
         transition: all 0.18s ease !important;
     }}
+
+    .stDownloadButton > button *,
+    .stButton > button * {{
+        color: #ffffff !important;
+    }}
+
     .stDownloadButton > button:hover,
     .stButton > button:hover {{
         background: {C["navy_deep"]} !important;
         border-color: {C["navy_deep"]} !important;
+        color: #ffffff !important;
+    }}
+
+    .stDownloadButton > button:hover *,
+    .stButton > button:hover * {{
         color: #ffffff !important;
     }}
 
@@ -406,14 +435,14 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     }}
     .m-section-title {{
         font-family: 'Inter', sans-serif;
-        font-size: 1.1rem;
+        font-size: 1.9rem;
         font-weight: 700;
         color: {C["navy"]};
         letter-spacing: -0.01em;
     }}
     .m-section-sub {{
         font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
+        font-size: 1.45rem;
         font-weight: 400;
         color: {C["text_secondary"]};
     }}
@@ -430,12 +459,24 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
         height: 100%;
         box-sizing: border-box;
     }}
-    .m-card-icon {{
-        font-size: 1.5rem;
-        margin-bottom: 0.65rem;
-        display: block;
-        line-height: 1;
+
+    .m-card-head {{
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.85rem;
     }}
+
+    .m-card-icon {{
+        font-size: 1.9rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }}
+
     .m-card-label {{
         font-family: 'Inter', sans-serif;
         font-size: 0.68rem;
@@ -445,17 +486,19 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
         color: {C["gold"]};
         margin-bottom: 0.45rem;
     }}
+
     .m-card-title {{
         font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
+        font-size: 1.55rem;
         font-weight: 700;
         color: {C["navy"]};
-        margin-bottom: 0.5rem;
-        line-height: 1.4;
+        margin-bottom: 0;
+        line-height: 1.3;
     }}
+
     .m-card-body {{
         font-family: 'Inter', sans-serif;
-        font-size: 0.92rem;
+        font-size: 1.15rem;
         color: {C["text_body"]};
         line-height: 1.7;
         margin: 0;
@@ -464,27 +507,31 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     /* ── Takeaway / insight callout ──────────────────────────────────────── */
     .m-takeaway {{
         background: {C["navy"]};
-        border-left: 4px solid {C["gold"]};
-        border-radius: 6px;
-        padding: 1.4rem 1.75rem;
-        margin-top: 1.75rem;
-        margin-bottom: 0.5rem;
+        border-left: 6px solid {C["gold"]};
+        border-radius: 8px;
+        padding: 2rem 2.2rem;
+        margin-top: 2.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 3px 12px rgba(0,59,92,0.16);
     }}
+
     .m-takeaway .m-tk-label {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1.06rem !important;
-        font-weight: 700 !important;
+        font-size: 1.28rem !important;
+        font-weight: 800 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.16em !important;
+        letter-spacing: 0.18em !important;
         color: {C["gold"]} !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.9rem !important;
         display: block !important;
+        line-height: 1.3 !important;
     }}
+
     .m-takeaway .m-tk-text {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1rem !important;
-        font-weight: 400 !important;
-        color: rgba(255,255,255,0.93) !important;
+        font-size: 1.35rem !important;
+        font-weight: 500 !important;
+        color: rgba(255,255,255,0.95) !important;
         line-height: 1.75 !important;
         margin: 0 !important;
     }}
@@ -497,6 +544,22 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
         padding: 1.35rem 1.75rem;
         margin-bottom: 1.75rem;
         box-shadow: 0 1px 4px rgba(0,59,92,0.04);
+    }}
+
+
+    /* ── Streamlit bordered control containers ───────────────────────────── */
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        padding: 1.6rem 1.8rem !important;
+        border-radius: 8px !important;
+        border: 1px solid {C["border"]} !important;
+        background: {C["card_bg"]} !important;
+        box-shadow: 0 1px 6px rgba(0,59,92,0.05) !important;
+        margin-bottom: 1.2rem !important;
+    }}
+
+    div[data-testid="stSlider"] {{
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.8rem !important;
     }}
 
     /* ── Direction / status card ─────────────────────────────────────────── */
@@ -612,16 +675,19 @@ def section_header(title: str, subtitle: str = "") -> None:
 def info_card(title: str, body: str, icon: str = "") -> None:
     """
     White card with gold top-border.
-    title — card heading (displayed in navy)
+    title — card heading displayed in navy
     body  — body paragraph
     icon  — optional emoji prefix
     """
     icon_html = f'<span class="m-card-icon">{icon}</span>' if icon else ""
+
     st.markdown(
         f"""
         <div class="m-card">
-            {icon_html}
-            <div class="m-card-title">{title}</div>
+            <div class="m-card-head">
+                {icon_html}
+                <div class="m-card-title">{title}</div>
+            </div>
             <p class="m-card-body">{body}</p>
         </div>
         """,
