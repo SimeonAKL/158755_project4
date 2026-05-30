@@ -48,7 +48,7 @@ import plotly.graph_objects as go
 PALETTE = {
     # ── Massey navy scale ────────────────────────────────────────────────
     "navy_deep":   "#004B8D",   # deepest — hero bg, sidebar root
-    "navy":        "#046096",   # primary — titles, sidebar, table heads
+    "navy":        "#004B8D",   # primary — titles, sidebar, table heads
     "navy_body":   "#1E293B",   # near-black — body text, chart titles
     "navy_mid":    "#1E293B",   # alias used by pages (kept for compat)
 
@@ -192,7 +192,7 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     /* ── H2  st.header ──────────────────────────────────────────────────── */
     h2 {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1.3rem !important;
+        font-size: 1.8rem !important;
         font-weight: 600 !important;
         color: {C["navy"]} !important;
         letter-spacing: -0.01em !important;
@@ -203,7 +203,7 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     /* ── H3 ─────────────────────────────────────────────────────────────── */
     h3 {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1.05rem !important;
+        font-size: 1.55rem !important;
         font-weight: 600 !important;
         color: {C["navy_body"]} !important;
         margin-bottom: 0.55rem !important;
@@ -212,20 +212,20 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     /* ── Body copy ───────────────────────────────────────────────────────── */
     p, li {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 1rem !important;
+        font-size: 1.2rem !important;
         line-height: 1.8 !important;
         color: {C["text_body"]} !important;
         font-weight: 400 !important;
     }}
     .stMarkdown p {{
-        font-size: 1rem !important;
+        font-size: 1.2rem !important;
         line-height: 1.8 !important;
         color: {C["text_body"]} !important;
     }}
 
     /* ── Captions ────────────────────────────────────────────────────────── */
     .stCaption, [data-testid="stCaptionContainer"] p {{
-        font-size: 0.85rem !important;
+        font-size: 1.05rem !important;
         color: {C["text_secondary"]} !important;
         line-height: 1.6 !important;
     }}
@@ -472,7 +472,7 @@ section[data-testid="stSidebar"] [aria-selected="true"] {{
     }}
     .m-takeaway .m-tk-label {{
         font-family: 'Inter', sans-serif !important;
-        font-size: 0.66rem !important;
+        font-size: 1.06rem !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.16em !important;

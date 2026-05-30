@@ -76,7 +76,7 @@ questions = [
      "Addressed by incorporating Stats NZ employment and labour force indicators."),
 ]
 
-for i, (q, a) in enumerate(questions, 1):
+def _render_question(i, q, a):
     st.markdown(
         f"""
         <div style="
@@ -96,6 +96,18 @@ for i, (q, a) in enumerate(questions, 1):
         """,
         unsafe_allow_html=True,
     )
+
+row1_col1, row1_col2 = st.columns(2)
+with row1_col1:
+    _render_question(1, *questions[0])
+with row1_col2:
+    _render_question(2, *questions[1])
+
+row2_col1, row2_col2 = st.columns(2)
+with row2_col1:
+    _render_question(3, *questions[2])
+with row2_col2:
+    _render_question(4, *questions[3])
 
 # ── Data sources ──────────────────────────────────────────────────────────────
 section_header("Data Sources")

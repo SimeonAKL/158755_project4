@@ -162,9 +162,6 @@ if skill_view in ["Both", "Unskilled only"]:
         line_trace(df_f[date_col], df_f[unskilled_col],
                    "Unskilled", color=CHART_COLORS[1], width=2)
     )
-fig3.update_layout(**plotly_layout(
-    "Skilled vs Unskilled Hiring Demand", x_label="", y_label="Hiring Demand Index"))
-st.plotly_chart(fig3, use_container_width=True)
 
 st.write(
     "The comparison between skill segments shows that labour demand does not affect "
