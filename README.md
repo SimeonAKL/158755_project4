@@ -145,7 +145,8 @@ Allows flexible exploration of selected regions, industries, occupations, or ski
 │       └── totals_forecast_results.csv
 ├── figures/
 ├── notebooks/
-│   └── [main project notebook].ipynb
+│   └── MasseyUniversity_158755_Project4_Group1.ipynb
+├── MasseyUniversity_158755_Project4_Group1.html
 ├── requirements.txt
 ├── README.md
 └── .devcontainer/
